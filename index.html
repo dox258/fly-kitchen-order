@@ -62,4 +62,629 @@
     </div>
   </section>
 
-  <!-- 分類
+  <!-- 分類頁籤 -->
+  <nav class="max-w-6xl mx-auto px-4 py-4 flex gap-2 overflow-x-auto" id="categoryTabs"></nav>
+
+  <!-- 分類提示橫幅 -->
+  <div id="categoryBanner" class="max-w-6xl mx-auto px-4 mb-4 hidden">
+    <div class="bg-amber-50 border border-amber-200 text-amber-900 text-xs px-4 py-2 rounded-lg font-medium"></div>
+  </div>
+
+  <!-- 菜單管理新增區（預設隱藏） -->
+  <section id="adminAddSection" class="hidden max-w-6xl mx-auto px-4 mb-4">
+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="font-bold text-amber-900 text-sm">➕ 新增自訂品項</h2>
+        <button onclick="resetDefaultMenu()" class="text-xs text-red-600 underline">恢復官方預設菜單</button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-4 gap-2">
+        <input type="text" id="newItemName" placeholder="餐點名稱" class="border rounded-lg px-3 py-1.5 text-sm bg-white" />
+        <select id="newItemCategory" class="border rounded-lg px-3 py-1.5 text-sm bg-white">
+          <option value="雙拼系列">雙拼系列</option>
+          <option value="主食系列">主食系列</option>
+          <option value="肉多多系列">肉多多系列</option>
+          <option value="PASTA系列">PASTA系列</option>
+          <option value="現打果汁">現打果汁</option>
+          <option value="茶類・濃湯">茶類・濃湯</option>
+          <option value="輕食・單點">輕食・單點</option>
+        </select>
+        <input type="number" id="newItemPrice" placeholder="價格 (元)" class="border rounded-lg px-3 py-1.5 text-sm bg-white" />
+        <button onclick="addNewMenuItem()" class="bg-[#3d5a45] text-white rounded-lg px-4 py-1.5 text-sm font-medium hover:bg-[#2f4635]">新增品項</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 餐點列表 -->
+  <main class="max-w-6xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="menuGrid"></main>
+
+  <!-- 底部懸浮購物車列 -->
+  <div class="fixed bottom-0 inset-x-0 bg-white border-t border-stone-200 shadow-lg z-30">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div>
+        <span class="text-xs text-stone-500">已選購 <strong id="totalCount" class="text-[#3d5a45] text-base">0</strong> 份餐點</span>
+        <div class="text-lg font-bold text-stone-900">總計：NT$ <span id="totalPrice">0</span></div>
+      </div>
+      <button onclick="openCartModal()" class="bg-[#3d5a45] hover:bg-[#2f4635] text-white font-bold px-6 py-2.5 rounded-xl shadow transition">
+        查看購物車 / 送出訂單
+      </button>
+    </div>
+  </div>
+
+  <!-- 客製化選項 Modal -->
+  <div id="customModal" class="hidden fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-xl">
+      <div class="flex justify-between items-start border-b pb-3">
+        <div>
+          <h3 id="modalItemName" class="text-lg font-bold text-stone-900"></h3>
+          <p id="modalItemPrice" class="text-sm text-[#3d5a45] font-bold"></p>
+          <p id="modalItemDesc" class="text-[11px] text-stone-400 mt-0.5"></p>
+        </div>
+        <button onclick="closeCustomModal()" class="text-stone-400 hover:text-stone-700 text-xl">&times;</button>
+      </div>
+
+      <div class="space-y-4 my-4 max-h-[62vh] overflow-y-auto pr-1">
+        <!-- 雙規格/雙口味選擇（義大利麵口味 or 烤雞翅3入/6入） -->
+        <div id="variantOptionGroup" class="hidden">
+          <label id="variantGroupTitle" class="block text-xs font-bold text-stone-700 mb-1.5">選擇風味 / 規格</label>
+          <div id="variantRadioContainer" class="grid grid-cols-1 gap-2 text-xs"></div>
+        </div>
+
+        <!-- 餐盒飯量調整 -->
+        <div id="riceOptionGroup" class="hidden">
+          <label class="block text-xs font-bold text-stone-700 mb-1.5">餐盒飯量調整（含紫米飯/花椰菜/蔬食*2/溏心蛋/南瓜）</label>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <label class="border rounded-lg p-2 flex items-center gap-2 cursor-pointer"><input type="radio" name="rice" value="正常紫米飯" checked /> 正常紫米飯</label>
+            <label class="border rounded-lg p-2 flex items-center gap-2 cursor-pointer"><input type="radio" name="rice" value="少飯" /> 少飯</label>
+            <label class="border rounded-lg p-2 flex items-center gap-2 cursor-pointer"><input type="radio" name="rice" value="飯換時蔬" /> 飯換時蔬</label>
+            <label class="border rounded-lg p-2 flex items-center gap-2 cursor-pointer"><input type="radio" name="rice" value="不要飯" /> 不要飯</label>
+          </div>
+        </div>
+
+        <!-- 套餐系列加購（僅主餐類顯示） -->
+        <div id="comboOptionGroup" class="hidden">
+          <label class="block text-xs font-bold text-stone-700 mb-1.5">升級套餐系列（可複選）</label>
+          <div class="grid grid-cols-1 gap-1.5 text-xs">
+            <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer bg-amber-50/40">
+              <span><input type="checkbox" class="addon-check mr-2" data-name="A套餐(南瓜濃湯+蜂蜜餐包)" data-price="109" /> <strong>A 套餐</strong>：主廚南瓜濃湯 + 義式蜂蜜餐包</span>
+              <span class="text-[#3d5a45] font-bold">+NT$ 109</span>
+            </label>
+            <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer bg-amber-50/40">
+              <span><input type="checkbox" class="addon-check mr-2" data-name="B套餐(脆薯+玫瑰綠茶)" data-price="109" /> <strong>B 套餐</strong>：美式香酥脆薯 + 玫瑰綠茶</span>
+              <span class="text-[#3d5a45] font-bold">+NT$ 109</span>
+            </label>
+            <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer bg-amber-50/40">
+              <span><input type="checkbox" class="addon-check mr-2" data-name="C套餐(麥克雞塊+國寶茶)" data-price="109" /> <strong>C 套餐</strong>：麥克雞塊 + 南非國寶茶</span>
+              <span class="text-[#3d5a45] font-bold">+NT$ 109</span>
+            </label>
+            <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer bg-amber-50/40">
+              <span><input type="checkbox" class="addon-check mr-2" data-name="D套餐(檸香烤雞翅3入+國寶茶)" data-price="199" /> <strong>D 套餐</strong>：檸香烤雞翅3入 + 南非國寶茶</span>
+              <span class="text-[#3d5a45] font-bold">+NT$ 199</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 單點配料加購 -->
+        <div>
+          <label class="block text-xs font-bold text-stone-700 mb-1.5">額外單點加購（官方原價）</label>
+          <div class="grid grid-cols-2 gap-1.5 text-xs">
+            <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer">
+              <span><input type="checkbox" class="addon-check mr-1.5" data-name="溏心蛋" data-price="30" /> 溏心蛋</span>
+              <span class="text-stone-500">+$30</span>
+            </label>
+            <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer">
+              <span><input type="checkbox" class="addon-check mr-1.5" data-name="蒸烤花椰菜" data-price="45" /> 蒸烤花椰菜</span>
+              <span class="text-stone-500">+$45</span>
+            </label>
+            <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer">
+              <span><input type="checkbox" class="addon-check mr-1.5" data-name="香Q紫米飯" data-price="25" /> 香Q紫米飯</span>
+              <span class="text-stone-500">+$25</span>
+            </label>
+            <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer">
+              <span><input type="checkbox" class="addon-check mr-1.5" data-name="義式蜂蜜餐包(2入)" data-price="59" /> 蜂蜜餐包(2入)</span>
+              <span class="text-stone-500">+$59</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-stone-700 mb-1">單品備註</label>
+          <input type="text" id="modalNote" placeholder="例如：飲料去冰、不要胡椒" class="w-full border rounded-lg px-3 py-2 text-xs" />
+        </div>
+      </div>
+
+      <button onclick="confirmAddToCart()" class="w-full bg-[#3d5a45] hover:bg-[#2f4635] text-white font-bold py-2.5 rounded-xl transition">
+        加入購物車
+      </button>
+    </div>
+  </div>
+
+  <!-- 購物車與結帳 Modal -->
+  <div id="cartModal" class="hidden fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-5 shadow-xl">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="text-lg font-bold">確認訂單明細</h3>
+        <button onclick="closeCartModal()" class="text-stone-400 hover:text-stone-700 text-xl">&times;</button>
+      </div>
+
+      <div id="cartItemsList" class="my-4 space-y-2 max-h-[45vh] overflow-y-auto"></div>
+
+      <div class="border-t pt-3 space-y-3">
+        <div>
+          <label class="block text-xs font-bold text-stone-700 mb-1">整筆訂單備註</label>
+          <input type="text" id="globalOrderNote" placeholder="例如：需要餐具、12:00前送達" class="w-full border rounded-lg px-3 py-2 text-xs" />
+        </div>
+
+        <div class="flex justify-between items-center text-base font-bold">
+          <span>應付總金額</span>
+          <span class="text-[#3d5a45] text-xl">NT$ <span id="modalTotalPrice">0</span></span>
+        </div>
+
+        <div id="submitStatusMsg" class="hidden text-xs p-2.5 rounded-lg"></div>
+
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button onclick="copyOrderText()" class="border border-[#3d5a45] text-[#3d5a45] hover:bg-emerald-50 font-bold py-2.5 rounded-xl text-sm transition">
+            📋 複製 LINE 明細
+          </button>
+          <button id="submitOrderBtn" onclick="submitOrderToSheet()" class="bg-[#3d5a45] hover:bg-[#2f4635] text-white font-bold py-2.5 rounded-xl text-sm transition">
+            🚀 送出並統計訂單
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Google Sheets 統計串接設定 Modal -->
+  <div id="settingsModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-5 shadow-xl">
+      <div class="flex justify-between items-center border-b pb-3 mb-3">
+        <h3 class="text-base font-bold">⚙️ 團購統計試算表設定</h3>
+        <button onclick="closeSettingsModal()" class="text-stone-400 hover:text-stone-700 text-xl">&times;</button>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Google Apps Script 網頁應用程式網址 (必填)</label>
+          <input type="url" id="gasUrlInput" placeholder="https://script.google.com/macros/s/.../exec" class="w-full border rounded-lg px-3 py-2" />
+        </div>
+        <div>
+          <label class="block font-bold text-stone-700 mb-1">Google 試算表查看網址 (選填)</label>
+          <input type="url" id="sheetUrlInput" placeholder="https://docs.google.com/spreadsheets/d/..." class="w-full border rounded-lg px-3 py-2" />
+        </div>
+        <button onclick="saveSettings()" class="w-full bg-[#3d5a45] text-white font-bold py-2.5 rounded-xl text-sm mt-2">
+          儲存設定
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 建議將您的 Google Apps Script 與試算表網址直接貼入下方引號內，所有人打開網頁即可直接使用：
+    const HARDCODED_GAS_URL = ""; 
+    const HARDCODED_SHEET_URL = "";
+
+    const OFFICIAL_MENU = [
+      // 一、雙拼系列（含紫米飯/蒸烤花椰菜/蒸烤蔬食*2/溏心蛋*1/南瓜）
+      { id: 101, name: "海陸豪華寶盒", category: "雙拼系列", price: 509, memberPrice: 499, desc: "脂肪24.4g / 碳水111.6g / 蛋白質104.5g / 843大卡" },
+      { id: 102, name: "非晉經典雙拼（雞腿+松阪豬）", category: "雙拼系列", price: 409, memberPrice: 399, desc: "脂肪25.8g / 碳水112.4g / 蛋白質59.5g / 921大卡" },
+      { id: 103, name: "檸香鯖魚去骨雞腿", category: "雙拼系列", price: 399, memberPrice: 389, desc: "脂肪30.5g / 碳水71g / 蛋白質51g / 1100大卡" },
+      { id: 104, name: "非晉人氣雙拼（雞腿+板腱牛）", category: "雙拼系列", price: 369, memberPrice: 359, desc: "脂肪30.5g / 碳水111.2g / 蛋白質61.8g / 905大卡" },
+      { id: 105, name: "雙拼蒸烤雞腿烤蝦", category: "雙拼系列", price: 319, memberPrice: 309, desc: "脂肪23.5g / 碳水111g / 蛋白質85.8g / 801大卡" },
+      { id: 106, name: "低脂雙拼（雞胸+杏鮑菇）", category: "雙拼系列", price: 269, memberPrice: 259, desc: "脂肪11.3g / 碳水121g / 蛋白質50.6g / 628大卡" },
+
+      // 二、主食系列（含紫米飯/蒸烤花椰菜/蒸烤蔬食*2/溏心蛋*1/南瓜）
+      { id: 201, name: "香烤菲力牛", category: "主食系列", price: 309, memberPrice: 299, desc: "脂肪20.9g / 碳水111g / 蛋白質46g / 659大卡" },
+      { id: 202, name: "芥末椒鹽大鮭魚", category: "主食系列", price: 309, memberPrice: 299, desc: "脂肪16.2g / 碳水111g / 蛋白質49.7g / 728大卡" },
+      { id: 203, name: "檸香金目鱸魚", category: "主食系列", price: 309, memberPrice: 299, desc: "脂肪11.5g / 碳水0.4g / 蛋白質109.6g / 566大卡" },
+      { id: 204, name: "芥末椒鹽烤松阪豬", category: "主食系列", price: 299, memberPrice: 289, desc: "脂肪14.5g / 碳水112.4g / 蛋白質42.9g / 657大卡" },
+      { id: 205, name: "芥末椒鹽烤蝦", category: "主食系列", price: 279, memberPrice: 269, desc: "脂肪11.1g / 碳水111g / 蛋白質38.8g / 540大卡" },
+      { id: 206, name: "板腱牛佐法式油封蒜頭", category: "主食系列", price: 279, memberPrice: 269, desc: "脂肪19.2g / 碳水111.2g / 蛋白質45.2g / 641大卡" },
+      { id: 207, name: "檸香鯖魚", category: "主食系列", price: 279, memberPrice: 269, desc: "脂肪46.1g / 碳水111g / 蛋白質45.4g / 1120大卡" },
+      { id: 208, name: "芥末椒鹽鮭魚（半）", category: "主食系列", price: 259, memberPrice: 249, desc: "脂肪19.2g / 碳水111g / 蛋白質37.5g / 601大卡" },
+      { id: 209, name: "西班牙煙燻去骨雞腿", category: "主食系列", price: 239, memberPrice: 230, desc: "脂肪21.5g / 碳水111g / 蛋白質42g / 739大卡" },
+      { id: 210, name: "舒肥原味雞胸", category: "主食系列", price: 209, memberPrice: 199, desc: "脂肪11.1g / 碳水111g / 蛋白質47.4g / 579大卡" },
+      { id: 211, name: "義式杏鮑菇（蛋奶素）", category: "主食系列", price: 179, memberPrice: 169, desc: "脂肪10.4g / 碳水121g / 蛋白質28.6g / 524大卡" },
+      { id: 212, name: "地瓜低脂（不含紫米飯）", category: "主食系列", price: 125, memberPrice: 120, desc: "脂肪0.5g / 碳水37.6g / 蛋白質1.9g / 166大卡" },
+
+      // 三、肉多多系列（含紫米飯/蒸烤花椰菜/蒸烤蔬食*2/溏心蛋*1/南瓜）
+      { id: 301, name: "豬多多芥末椒鹽松阪豬餐盒", category: "肉多多系列", price: 449, desc: "脂肪48.5g / 碳水71.4g / 蛋白質49g / 930大卡" },
+      { id: 302, name: "蝦多多芥末椒鹽大蝦餐盒", category: "肉多多系列", price: 419, desc: "脂肪9.9g / 碳水72.6g / 蛋白質61g / 628大卡" },
+      { id: 303, name: "牛多多板腱牛佐法式油封蒜頭", category: "肉多多系列", price: 419, desc: "脂肪30.5g / 碳水71.6g / 蛋白質67g / 834大卡" },
+      { id: 304, name: "左腳右腳去骨雞腿餐盒", category: "肉多多系列", price: 339, desc: "脂肪54.5g / 碳水71.4g / 蛋白質75g / 1100大卡" },
+      { id: 305, name: "雞多多舒肥雞胸餐盒", category: "肉多多系列", price: 279, desc: "脂肪12.5g / 碳水71.4g / 蛋白質77g / 700大卡" },
+      { id: 306, name: "菇多多杏鮑菇餐盒", category: "肉多多系列", price: 229, desc: "脂肪12.5g / 碳水71.4g / 蛋白質75g / 674大卡" },
+
+      // 四、PASTA 系列（主廚義大利麵 / 墨西哥辣椒風味 +$10）
+      { id: 401, name: "海陸豪華義大利麵", category: "PASTA系列", price: 539, spicyPrice: 549, desc: "脂肪15.12g / 碳水136.66g / 蛋白質71.54g / 987大卡" },
+      { id: 402, name: "非晉經典雙拼義大利麵（雞腿+松阪豬）", category: "PASTA系列", price: 439, spicyPrice: 449, desc: "脂肪18.28g / 碳水136.86g / 蛋白質56.6g / 1067.4大卡" },
+      { id: 403, name: "非晉人氣雙拼義大利麵（雞腿+板腱牛）", category: "PASTA系列", price: 399, spicyPrice: 409, desc: "脂肪22.98g / 碳水135.66g / 蛋白質58.9g / 1051.4大卡" },
+      { id: 404, name: "雞腿烤蝦義大利麵", category: "PASTA系列", price: 349, spicyPrice: 359, desc: "脂肪14.22g / 碳水136.06g / 蛋白質52.84g / 945大卡" },
+      { id: 405, name: "香烤椒鹽鮭魚義大利麵", category: "PASTA系列", price: 339, spicyPrice: 349, desc: "脂肪8.68g / 碳水135.46g / 蛋白質46.8g / 874.4大卡" },
+      { id: 406, name: "香烤菲力牛義大利麵", category: "PASTA系列", price: 339, spicyPrice: 349, desc: "脂肪13.38g / 碳水135.56g / 蛋白質43.1g / 805.4大卡" },
+      { id: 407, name: "檸香鱸魚義大利麵", category: "PASTA系列", price: 339, spicyPrice: 349, desc: "脂肪6.7g / 碳水58.7g / 蛋白質46.5g / 501大卡" },
+      { id: 408, name: "香烤椒鹽松阪豬義大利麵", category: "PASTA系列", price: 329, spicyPrice: 339, desc: "脂肪6.98g / 碳水136.86g / 蛋白質40g / 803大卡" },
+      { id: 409, name: "椒鹽烤蝦義大利麵", category: "PASTA系列", price: 309, spicyPrice: 319, desc: "脂肪3.16g / 碳水136.68g / 蛋白質49.98g / 741大卡" },
+      { id: 410, name: "板腱牛佐法式油封蒜頭義大利麵", category: "PASTA系列", price: 309, spicyPrice: 319, desc: "脂肪11.68g / 碳水135.66g / 蛋白質42.3g / 787大卡" },
+      { id: 411, name: "檸香鯖魚義大利麵", category: "PASTA系列", price: 309, spicyPrice: 319, desc: "脂肪38.58g / 碳水135.46g / 蛋白質42.5g / 1266.4大卡" },
+      { id: 412, name: "低脂雙拼義大利麵", category: "PASTA系列", price: 299, spicyPrice: 309, desc: "脂肪3.78g / 碳水145.46g / 蛋白質47.7g / 774大卡" },
+      { id: 413, name: "西班牙烤雞腿義大利麵", category: "PASTA系列", price: 269, spicyPrice: 279, desc: "脂肪13.98g / 碳水135.46g / 蛋白質39.1g / 885大卡" },
+      { id: 414, name: "舒肥雞胸義大利麵", category: "PASTA系列", price: 239, spicyPrice: 249, desc: "脂肪3.58g / 碳水135.46g / 蛋白質44.5g / 725大卡" },
+      { id: 415, name: "香烤義式杏鮑菇義大利麵", category: "PASTA系列", price: 209, spicyPrice: 219, desc: "脂肪2.88g / 碳水145.46g / 蛋白質25.7g / 670大卡" },
+
+      // 五、現打果汁（不加糖、不加水）
+      { id: 501, name: "冰檸蘋果芭樂原汁", category: "現打果汁", price: 149, desc: "新鮮現打，不加糖、不加水" },
+      { id: 502, name: "招牌蔬果原汁", category: "現打果汁", price: 139, desc: "新鮮現打，不加糖、不加水" },
+      { id: 503, name: "超濃芭樂原汁", category: "現打果汁", price: 129, desc: "新鮮現打，不加糖、不加水" },
+      { id: 504, name: "胡蘿蔔原汁", category: "現打果汁", price: 129, desc: "新鮮現打，不加糖、不加水" },
+
+      // 六、茶類・濃湯
+      { id: 601, name: "主廚南瓜濃湯", category: "茶類・濃湯", price: 99, desc: "香濃綿密主廚特調南瓜濃湯" },
+      { id: 602, name: "南非國寶茶（焦糖風味，無咖啡因）", category: "茶類・濃湯", price: 50, desc: "無咖啡因溫潤順口" },
+      { id: 603, name: "玫瑰綠茶", category: "茶類・濃湯", price: 50, desc: "淡雅玫瑰香氣搭配清新綠茶" },
+
+      // 七、輕食・單點
+      { id: 701, name: "檸香風味烤雞翅", category: "輕食・單點", price: 169, largePrice: 319, desc: "提供 3入 ($169) / 6入 ($319) 兩種規格" },
+      { id: 702, name: "美式香酥脆薯", category: "輕食・單點", price: 79, desc: "金黃酥脆美式薯條" },
+      { id: 703, name: "麥克雞塊（6入）", category: "輕食・單點", price: 79, desc: "經典香酥雞塊 6 入" },
+      { id: 704, name: "溏心蛋 + 花椰菜", category: "輕食・單點", price: 69, desc: "人氣清爽高纖組合" },
+      { id: 705, name: "義式蜂蜜餐包（2入）", category: "輕食・單點", price: 59, desc: "鬆軟香甜蜂蜜餐包 2 入" },
+      { id: 706, name: "烤鴻喜菇", category: "輕食・單點", price: 59, desc: "高溫蒸烤保留鮮甜多汁" },
+      { id: 707, name: "蒸烤花椰菜", category: "輕食・單點", price: 45, desc: "少油蒸烤翠綠花椰菜" },
+      { id: 708, name: "溏心蛋", category: "輕食・單點", price: 30, desc: "滑嫩入味招牌溏心蛋" },
+      { id: 709, name: "香Q紫米飯", category: "輕食・單點", price: 25, desc: "粒粒分明健康紫米飯" }
+    ];
+
+    const CATEGORY_BANNERS = {
+      "雙拼系列": "🍱 此區餐點含：紫米飯 / 蒸烤花椰菜 / 蒸烤蔬食*2 / 溏心蛋*1 / 南瓜（上方可切換原價或會員價）",
+      "主食系列": "🍱 此區餐點含：紫米飯 / 蒸烤花椰菜 / 蒸烤蔬食*2 / 溏心蛋*1 / 南瓜（地瓜低脂不含紫米飯）",
+      "肉多多系列": "🥩 肉量加倍滿足！此區餐點含：紫米飯 / 蒸烤花椰菜 / 蒸烤蔬食*2 / 溏心蛋*1 / 南瓜",
+      "PASTA系列": "🍝 全系列可選「主廚義大利麵」或「墨西哥辣椒風味 (+$10)」，並可加購 A/B/C/D 套餐",
+      "現打果汁": "🥤 100% 新鮮現打原汁，堅持不加糖、不加水"
+    };
+
+    let menuItems = JSON.parse(localStorage.getItem('fly_kitchen_official_menu_v2')) || OFFICIAL_MENU;
+    let currentCategory = "全部";
+    let isEditMode = false;
+    let cart = [];
+    let selectedItem = null;
+
+    function getGasUrl() { return HARDCODED_GAS_URL || localStorage.getItem('fly_gas_url') || ""; }
+    function getSheetUrl() { return HARDCODED_SHEET_URL || localStorage.getItem('fly_sheet_url') || ""; }
+
+    function init() {
+      const sheetUrl = getSheetUrl();
+      const sheetBtn = document.getElementById('sheetLinkBtn');
+      if (sheetUrl) {
+        sheetBtn.href = sheetUrl;
+        sheetBtn.classList.remove('hidden');
+      } else {
+        sheetBtn.classList.add('hidden');
+      }
+      renderCategories();
+      renderMenu();
+    }
+
+    function renderCategories() {
+      const cats = ["全部", "雙拼系列", "主食系列", "肉多多系列", "PASTA系列", "現打果汁", "茶類・濃湯", "輕食・單點"];
+      document.getElementById('categoryTabs').innerHTML = cats.map(cat => `
+        <button onclick="selectCategory('${cat}')" class="px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition ${
+          currentCategory === cat ? 'bg-[#3d5a45] text-white shadow-sm' : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-100'
+        }">${cat}</button>
+      `).join('');
+
+      const bannerBox = document.getElementById('categoryBanner');
+      if (CATEGORY_BANNERS[currentCategory]) {
+        bannerBox.querySelector('div').textContent = CATEGORY_BANNERS[currentCategory];
+        bannerBox.classList.remove('hidden');
+      } else {
+        bannerBox.classList.add('hidden');
+      }
+    }
+
+    function selectCategory(cat) {
+      currentCategory = cat;
+      renderCategories();
+      renderMenu();
+    }
+
+    function getDisplayPrice(item) {
+      const tier = document.getElementById('priceTier').value;
+      if (tier === 'member' && item.memberPrice) return item.memberPrice;
+      return item.price;
+    }
+
+    function renderMenu() {
+      const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+      const tier = document.getElementById('priceTier').value;
+      const filtered = menuItems.filter(item => {
+        const matchCat = currentCategory === "全部" || item.category === currentCategory;
+        const matchKey = !keyword || item.name.toLowerCase().includes(keyword) || item.desc.toLowerCase().includes(keyword);
+        return matchCat && matchKey;
+      });
+
+      document.getElementById('menuGrid').innerHTML = filtered.map(item => {
+        const activePrice = getDisplayPrice(item);
+        let priceLabel = `NT$ ${activePrice}`;
+        if (item.spicyPrice) priceLabel = `NT$ ${item.price} <span class="text-xs font-normal text-stone-500">/ 墨辣 $${item.spicyPrice}</span>`;
+        if (item.largePrice) priceLabel = `NT$ ${item.price} <span class="text-xs font-normal text-stone-500">(3入) / $${item.largePrice} (6入)</span>`;
+
+        return `
+          <div class="bg-white rounded-xl p-4 shadow-sm border border-stone-200 flex flex-col justify-between">
+            <div>
+              <div class="flex justify-between items-start gap-2">
+                <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-50 text-[#3d5a45] font-medium">${item.category}</span>
+                ${tier === 'member' && item.memberPrice ? `<span class="text-[11px] px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold">會員優惠價 (原價$${item.price})</span>` : ''}
+                ${isEditMode ? `<button onclick="deleteMenuItem(${item.id})" class="text-xs text-red-500 hover:underline">刪除</button>` : ''}
+              </div>
+              ${isEditMode ? `
+                <input type="text" value="${item.name}" onchange="updateMenuItem(${item.id}, 'name', this.value)" class="w-full border rounded px-2 py-1 text-sm font-bold mt-2" />
+                <input type="number" value="${item.price}" onchange="updateMenuItem(${item.id}, 'price', Number(this.value))" class="w-24 border rounded px-2 py-1 text-sm font-bold mt-1 text-[#3d5a45]" />
+              ` : `
+                <h3 class="font-bold text-stone-900 text-base mt-2">${item.name}</h3>
+                <p class="text-xs text-stone-500 mt-1">${item.desc}</p>
+              `}
+            </div>
+            <div class="flex items-center justify-between mt-4 pt-3 border-t border-stone-100">
+              <span class="font-bold text-[#3d5a45] text-base">${priceLabel}</span>
+              <button onclick="openCustomModal(${item.id})" class="bg-[#3d5a45] hover:bg-[#2f4635] text-white text-xs font-bold px-3.5 py-2 rounded-lg transition">
+                + 選擇餐點
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleEditMode() {
+      isEditMode = !isEditMode;
+      document.getElementById('adminAddSection').classList.toggle('hidden', !isEditMode);
+      document.getElementById('editModeBtn').textContent = isEditMode ? '✅ 完成編輯' : '✏️ 菜單管理';
+      renderMenu();
+    }
+
+    function updateMenuItem(id, field, val) {
+      menuItems = menuItems.map(i => i.id === id ? { ...i, [field]: val } : i);
+      localStorage.setItem('fly_kitchen_official_menu_v2', JSON.stringify(menuItems));
+    }
+
+    function addNewMenuItem() {
+      const name = document.getElementById('newItemName').value.trim();
+      const category = document.getElementById('newItemCategory').value;
+      const price = Number(document.getElementById('newItemPrice').value);
+      if (!name || !price) return alert('請輸入餐點名稱與價格');
+      menuItems.unshift({ id: Date.now(), name, category, price, desc: "自訂新增品項" });
+      localStorage.setItem('fly_kitchen_official_menu_v2', JSON.stringify(menuItems));
+      document.getElementById('newItemName').value = '';
+      document.getElementById('newItemPrice').value = '';
+      renderMenu();
+    }
+
+    function deleteMenuItem(id) {
+      if (!confirm('確定刪除此品項？')) return;
+      menuItems = menuItems.filter(i => i.id !== id);
+      localStorage.setItem('fly_kitchen_official_menu_v2', JSON.stringify(menuItems));
+      renderMenu();
+    }
+
+    function resetDefaultMenu() {
+      if (!confirm('確定恢復官方預設菜單？')) return;
+      menuItems = [...OFFICIAL_MENU];
+      localStorage.setItem('fly_kitchen_official_menu_v2', JSON.stringify(menuItems));
+      renderMenu();
+    }
+
+    function openCustomModal(id) {
+      selectedItem = menuItems.find(i => i.id === id);
+      const basePrice = getDisplayPrice(selectedItem);
+      document.getElementById('modalItemName').textContent = selectedItem.name;
+      document.getElementById('modalItemPrice').textContent = `單價 NT$ ${basePrice}`;
+      document.getElementById('modalItemDesc').textContent = selectedItem.desc;
+
+      // 雙規格處理（PASTA 口味 或 烤雞翅 3入/6入）
+      const variantGroup = document.getElementById('variantOptionGroup');
+      const variantContainer = document.getElementById('variantRadioContainer');
+      if (selectedItem.spicyPrice) {
+        document.getElementById('variantGroupTitle').textContent = "選擇義大利麵風味";
+        variantContainer.innerHTML = `
+          <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer">
+            <span><input type="radio" name="variant" value="主廚義大利麵" data-price="${selectedItem.price}" checked class="mr-2" /> 主廚義大利麵</span>
+            <span class="font-bold text-[#3d5a45]">NT$ ${selectedItem.price}</span>
+          </label>
+          <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer">
+            <span><input type="radio" name="variant" value="墨西哥辣椒風味" data-price="${selectedItem.spicyPrice}" class="mr-2" /> 墨西哥辣椒風味</span>
+            <span class="font-bold text-[#3d5a45]">NT$ ${selectedItem.spicyPrice}</span>
+          </label>
+        `;
+        variantGroup.classList.remove('hidden');
+      } else if (selectedItem.largePrice) {
+        document.getElementById('variantGroupTitle').textContent = "選擇份量規格";
+        variantContainer.innerHTML = `
+          <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer">
+            <span><input type="radio" name="variant" value="3入" data-price="${selectedItem.price}" checked class="mr-2" /> 3入</span>
+            <span class="font-bold text-[#3d5a45]">NT$ ${selectedItem.price}</span>
+          </label>
+          <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer">
+            <span><input type="radio" name="variant" value="6入" data-price="${selectedItem.largePrice}" class="mr-2" /> 6入</span>
+            <span class="font-bold text-[#3d5a45]">NT$ ${selectedItem.largePrice}</span>
+          </label>
+        `;
+        variantGroup.classList.remove('hidden');
+      } else {
+        variantGroup.classList.add('hidden');
+        variantContainer.innerHTML = '';
+      }
+
+      const isBox = ["雙拼系列", "主食系列", "肉多多系列"].includes(selectedItem.category) && selectedItem.id !== 212;
+      const isMainMeal = ["雙拼系列", "主食系列", "肉多多系列", "PASTA系列"].includes(selectedItem.category);
+      document.getElementById('riceOptionGroup').classList.toggle('hidden', !isBox);
+      document.getElementById('comboOptionGroup').classList.toggle('hidden', !isMainMeal);
+
+      document.querySelectorAll('.addon-check').forEach(cb => cb.checked = false);
+      document.getElementById('modalNote').value = '';
+      document.getElementById('customModal').classList.remove('hidden');
+    }
+
+    function closeCustomModal() {
+      document.getElementById('customModal').classList.add('hidden');
+    }
+
+    function confirmAddToCart() {
+      let itemBasePrice = getDisplayPrice(selectedItem);
+      let variantLabel = '';
+
+      const checkedVariant = document.querySelector('input[name="variant"]:checked');
+      if (checkedVariant) {
+        variantLabel = checkedVariant.value;
+        itemBasePrice = Number(checkedVariant.dataset.price);
+      }
+
+      const isBox = ["雙拼系列", "主食系列", "肉多多系列"].includes(selectedItem.category) && selectedItem.id !== 212;
+      const rice = isBox ? document.querySelector('input[name="rice"]:checked').value : '';
+      const tierLabel = (document.getElementById('priceTier').value === 'member' && selectedItem.memberPrice) ? '會員價' : '';
+
+      const addons = [];
+      let addonCost = 0;
+      document.querySelectorAll('.addon-check:checked').forEach(cb => {
+        addons.push(cb.dataset.name);
+        addonCost += Number(cb.dataset.price);
+      });
+      const note = document.getElementById('modalNote').value.trim();
+      const details = [variantLabel, tierLabel, rice, ...addons, note].filter(Boolean).join(' / ');
+
+      cart.push({
+        uid: Date.now(),
+        name: selectedItem.name,
+        unitPrice: itemBasePrice + addonCost,
+        details
+      });
+      closeCustomModal();
+      updateCartBar();
+    }
+
+    function updateCartBar() {
+      const total = cart.reduce((sum, i) => sum + i.unitPrice, 0);
+      document.getElementById('totalCount').textContent = cart.length;
+      document.getElementById('totalPrice').textContent = total;
+      document.getElementById('modalTotalPrice').textContent = total;
+    }
+
+    function openCartModal() {
+      if (cart.length === 0) return alert('購物車目前是空的喔！');
+      document.getElementById('submitStatusMsg').classList.add('hidden');
+      renderCartItems();
+      document.getElementById('cartModal').classList.remove('hidden');
+    }
+
+    function closeCartModal() {
+      document.getElementById('cartModal').classList.add('hidden');
+    }
+
+    function renderCartItems() {
+      document.getElementById('cartItemsList').innerHTML = cart.map((item, idx) => `
+        <div class="flex justify-between items-center bg-stone-50 p-2.5 rounded-lg border border-stone-200 text-xs">
+          <div>
+            <div class="font-bold text-stone-900">${item.name}</div>
+            ${item.details ? `<div class="text-stone-500 mt-0.5">${item.details}</div>` : ''}
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="font-bold text-[#3d5a45]">NT$ ${item.unitPrice}</span>
+            <button onclick="removeCartItem(${idx})" class="text-red-500 hover:underline">移除</button>
+          </div>
+        </div>
+      `).join('');
+      updateCartBar();
+    }
+
+    function removeCartItem(idx) {
+      cart.splice(idx, 1);
+      if (cart.length === 0) return closeCartModal();
+      renderCartItems();
+    }
+
+    function buildOrderSummaryText() {
+      const name = document.getElementById('customerName').value.trim() || '未填寫姓名';
+      const type = document.getElementById('orderType').value;
+      const note = document.getElementById('globalOrderNote').value.trim();
+      const total = cart.reduce((sum, i) => sum + i.unitPrice, 0);
+      const lines = cart.map((i, idx) => `${idx + 1}. ${i.name}${i.details ? ` (${i.details})` : ''} - $${i.unitPrice}`);
+      return `【非晉餐廚團購訂單】\n訂購人：${name} (${type})\n${lines.join('\n')}\n備註：${note || '無'}\n總計：NT$ ${total}`;
+    }
+
+    function copyOrderText() {
+      navigator.clipboard.writeText(buildOrderSummaryText()).then(() => {
+        alert('✅ 訂單明細已複製！可直接貼上至 LINE 群組。');
+      });
+    }
+
+    async function submitOrderToSheet() {
+      const customerName = document.getElementById('customerName').value.trim();
+      if (!customerName) {
+        alert('請先在上方輸入「訂購人姓名 / 部門」再送出喔！');
+        closeCartModal();
+        document.getElementById('customerName').focus();
+        return;
+      }
+
+      const gasUrl = getGasUrl();
+      if (!gasUrl) {
+        alert('尚未設定 Google Apps Script 統計網址！請先點擊右上角「⚙️ 設定統計」貼上網址。');
+        return;
+      }
+
+      const btn = document.getElementById('submitOrderBtn');
+      const statusBox = document.getElementById('submitStatusMsg');
+      btn.disabled = true;
+      btn.textContent = '傳送中...';
+
+      const payload = {
+        customerName,
+        orderType: document.getElementById('orderType').value,
+        itemsSummary: cart.map(i => `${i.name}${i.details ? `(${i.details})` : ''}`).join('、'),
+        note: document.getElementById('globalOrderNote').value.trim() || '無',
+        totalPrice: cart.reduce((sum, i) => sum + i.unitPrice, 0),
+        orderId: 'ORD-' + Math.floor(1000 + Math.random() * 9000)
+      };
+
+      try {
+        await fetch(gasUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        statusBox.className = 'text-xs p-2.5 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200';
+        statusBox.textContent = `🎉 訂單已成功送出至統計表！(編號：${payload.orderId})`;
+        statusBox.classList.remove('hidden');
+        cart = [];
+        updateCartBar();
+      } catch (err) {
+        statusBox.className = 'text-xs p-2.5 rounded-lg bg-red-50 text-red-700 border border-red-200';
+        statusBox.textContent = '❌ 傳送失敗，請檢查網路或統計網址是否正確。';
+        statusBox.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🚀 送出並統計訂單';
+      }
+    }
+
+    function openSettingsModal() {
+      document.getElementById('gasUrlInput').value = getGasUrl();
+      document.getElementById('sheetUrlInput').value = getSheetUrl();
+      document.getElementById('settingsModal').classList.remove('hidden');
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settingsModal').classList.add('hidden');
+    }
+
+    function saveSettings() {
+      localStorage.setItem('fly_gas_url', document.getElementById('gasUrlInput').value.trim());
+      localStorage.setItem('fly_sheet_url', document.getElementById('sheetUrlInput').value.trim());
+      closeSettingsModal();
+      init();
+      alert('✅ 統計網址設定已儲存！');
+    }
+
+    init();
+  </script>
+</body>
+</html>
