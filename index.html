@@ -1,0 +1,1630 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>非晉餐廚蒸烤料理 | 線上點餐系統</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Noto Sans TC & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              green: '#2E5A44',
+              greenDark: '#214232',
+              greenLight: '#E9F2ED',
+              cream: '#FAF8F5',
+              sand: '#F2EDE4',
+              amber: '#D97736',
+              amberDark: '#BD6226',
+              ink: '#1F2923',
+              muted: '#647069'
+            }
+          },
+          fontFamily: {
+            sans: ['"Noto Sans TC"', '"Inter"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #FAF8F5;
+      color: #1F2923;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #FAF8F5;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5CE;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #9EB0A4;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #receiptPrintable, #receiptPrintable * {
+        visibility: visible;
+      }
+      #receiptPrintable {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-brand-green selection:text-white">
+
+  <!-- Toast Notification Container (Replaces alert) -->
+  <div id="toastContainer" class="fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none max-w-sm w-[calc(100%-2rem)]"></div>
+
+  <!-- Top Navigation & Brand Header -->
+  <header class="bg-brand-green text-white sticky top-0 z-40 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-20 gap-3">
+        <!-- Brand Logo & Title -->
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center shrink-0">
+            <!-- Steam & Leaf SVG Icon -->
+            <svg class="w-6 h-6 sm:w-7 sm:h-7 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c-1.5 2-1.5 4 0 6M8 5c-1.2 1.6-1.2 3.2 0 4.8M16 5c-1.2 1.6-1.2 3.2 0 4.8" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 13h16a1 1 0 011 1v1a6 6 0 01-6 6H9a6 6 0 01-6-6v-1a1 1 0 011-1z" />
+            </svg>
+          </div>
+          <div class="truncate">
+            <div class="flex items-center gap-2">
+              <h1 class="text-lg sm:text-xl font-bold tracking-wide truncate">非晉餐廚蒸烤料理</h1>
+              <span class="hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-500/20 text-amber-200 border border-amber-400/30">
+                Fly Into The Kitchen
+              </span>
+            </div>
+            <p class="text-xs sm:text-sm text-emerald-100/90 truncate">健康蒸烤・少油無負擔・新鮮現做</p>
+          </div>
+        </div>
+
+        <!-- Right Actions -->
+        <div class="flex items-center gap-2 shrink-0">
+          <a href="https://www.fly-into-the-kitchen.com/article_d.php?lang=tw&tb=9&id=171" target="_blank" rel="noopener noreferrer"
+             class="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-white/10 hover:bg-white/20 text-white transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+            官方原圖菜單
+          </a>
+          <button onclick="openMenuManager()"
+                  class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-medium bg-brand-amber hover:bg-brand-amberDark text-white shadow-sm transition cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            <span>菜單管理</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Order Mode & Search Sub-header -->
+  <section class="bg-white border-b border-stone-200/80 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <!-- Order Mode Selector -->
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-semibold text-brand-muted uppercase tracking-wider mr-1">用餐方式</span>
+          <div class="inline-flex p-1 rounded-xl bg-brand-sand border border-stone-200" id="orderModeGroup">
+            <button type="button" data-mode="外帶自取" onclick="setOrderMode('外帶自取')"
+                    class="mode-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-brand-green text-white shadow-sm">
+              外帶自取
+            </button>
+            <button type="button" data-mode="內用點餐" onclick="setOrderMode('內用點餐')"
+                    class="mode-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-brand-muted hover:text-brand-ink">
+              內用桌號
+            </button>
+            <button type="button" data-mode="外送服務" onclick="setOrderMode('外送服務')"
+                    class="mode-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-brand-muted hover:text-brand-ink">
+              外送服務
+            </button>
+          </div>
+
+          <!-- Dynamic Table / Address Quick Input -->
+          <div id="tableNumberWrap" class="hidden items-center gap-1.5">
+            <input type="text" id="tableNumberInput" placeholder="輸入桌號 (例: A3)"
+                   class="w-32 px-3 py-1.5 text-sm rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-brand-green bg-brand-cream" />
+          </div>
+          <div id="deliveryAddressWrap" class="hidden items-center gap-1.5 w-full sm:w-auto">
+            <input type="text" id="deliveryAddressInput" placeholder="輸入外送地址..."
+                   class="w-full sm:w-64 px-3 py-1.5 text-sm rounded-xl border border-stone-300 focus:outline-none focus:ring-2 focus:ring-brand-green bg-brand-cream" />
+          </div>
+        </div>
+
+        <!-- Search Input -->
+        <div class="relative w-full md:w-72">
+          <svg class="w-4 h-4 text-brand-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input type="text" id="searchInput" oninput="renderMenu()" placeholder="搜尋餐點、雞胸、義大利麵..."
+                 class="w-full pl-9 pr-8 py-2 text-sm rounded-xl bg-brand-cream border border-stone-200 focus:outline-none focus:ring-2 focus:ring-brand-green focus:bg-white transition" />
+          <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Layout -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-28 lg:pb-12">
+    <div class="flex flex-col lg:flex-row gap-8 items-start">
+
+      <!-- Left Column: Category Tabs & Menu Grid -->
+      <div class="w-full lg:w-[64%] xl:w-[66%]">
+        <!-- Promo Banner -->
+        <div class="mb-5 p-4 rounded-2xl bg-gradient-to-r from-brand-greenLight via-[#F3F8F5] to-amber-50 border border-emerald-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-start sm:items-center gap-3">
+            <span class="px-2.5 py-1 rounded-lg bg-brand-green text-white text-xs font-bold shrink-0">優惠活動</span>
+            <p class="text-sm text-brand-ink">
+              結帳輸入優惠碼 <button onclick="applyPromoQuick('FLY10')" class="font-bold text-brand-amber underline decoration-dashed underline-offset-4 hover:text-brand-amberDark">FLY10</button> 享全單 <span class="font-bold text-brand-green">9 折優惠</span>！
+            </p>
+          </div>
+          <span class="text-xs text-brand-muted shrink-0">每份餐盒皆附當季蒸烤時蔬與紫米五穀飯</span>
+        </div>
+
+        <!-- Category Filter Tabs -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 mb-5" id="categoryTabs">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Menu Section Header -->
+        <div class="flex items-center justify-between mb-4">
+          <h2 id="activeCategoryTitle" class="text-lg font-bold text-brand-ink">全部餐點</h2>
+          <span id="itemCountLabel" class="text-xs font-medium text-brand-muted bg-brand-sand px-2.5 py-1 rounded-full">共 0 道料理</span>
+        </div>
+
+        <!-- Menu Cards Grid -->
+        <div id="menuGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Empty Search State -->
+        <div id="emptyMenuState" class="hidden text-center py-16 bg-white rounded-3xl border border-stone-200/70">
+          <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-brand-sand flex items-center justify-center text-brand-muted">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <h3 class="text-base font-bold text-brand-ink mb-1">找不到符合的餐點</h3>
+          <p class="text-sm text-brand-muted mb-4">試試看其他關鍵字或切換餐點分類</p>
+          <button onclick="resetFilters()" class="px-4 py-2 rounded-xl bg-brand-green text-white text-sm font-medium hover:bg-brand-greenDark transition">
+            顯示全部餐點
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Column: Sticky Desktop Shopping Cart & Checkout -->
+      <aside class="hidden lg:block w-full lg:w-[36%] xl:w-[34%] sticky top-24">
+        <div class="bg-white rounded-3xl shadow-lg shadow-stone-200/60 border border-stone-200/80 overflow-hidden flex flex-col max-h-[calc(100vh-7.5rem)]">
+          <!-- Cart Header -->
+          <div class="px-5 py-4 bg-brand-sand/70 border-b border-stone-200/80 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-brand-green" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+              <h2 class="font-bold text-base text-brand-ink">您的點餐明細</h2>
+              <span id="desktopCartBadge" class="px-2 py-0.5 text-xs font-bold rounded-full bg-brand-green text-white">0</span>
+            </div>
+            <button onclick="clearCart()" id="desktopClearCartBtn" class="hidden text-xs text-brand-muted hover:text-red-600 transition">
+              清空購物車
+            </button>
+          </div>
+
+          <!-- Cart Scrollable Body -->
+          <div id="desktopCartBody" class="flex-1 overflow-y-auto p-5 space-y-5">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- Mobile Fixed Bottom Cart Bar -->
+  <div id="mobileCartBar" class="lg:hidden fixed bottom-0 inset-x-0 z-40 p-3 bg-white/95 backdrop-blur-md border-t border-stone-200 shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
+    <button onclick="openMobileCartDrawer()" class="w-full py-3.5 px-5 rounded-2xl bg-brand-green hover:bg-brand-greenDark text-white font-bold flex items-center justify-between shadow-md transition">
+      <div class="flex items-center gap-2.5">
+        <span id="mobileCartCount" class="w-6 h-6 rounded-full bg-brand-amber text-white text-xs font-bold flex items-center justify-center">0</span>
+        <span class="text-sm sm:text-base">檢視購物車與結帳</span>
+      </div>
+      <span id="mobileCartTotal" class="text-base sm:text-lg font-bold tracking-tight">NT$ 0</span>
+    </button>
+  </div>
+
+  <!-- Mobile Cart Drawer Modal -->
+  <div id="mobileCartDrawer" class="fixed inset-0 z-50 hidden lg:hidden">
+    <div onclick="closeMobileCartDrawer()" class="fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity"></div>
+    <div class="fixed inset-x-0 bottom-0 max-h-[90vh] bg-white rounded-t-3xl shadow-2xl flex flex-col overflow-hidden animate-[slideUp_0.25s_ease-out]">
+      <div class="px-5 py-4 bg-brand-sand/70 border-b border-stone-200 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <h3 class="font-bold text-lg text-brand-ink">您的點餐明細</h3>
+          <span id="drawerCartBadge" class="px-2 py-0.5 text-xs font-bold rounded-full bg-brand-green text-white">0</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="clearCart()" id="drawerClearCartBtn" class="hidden text-xs text-brand-muted hover:text-red-600">清空</button>
+          <button onclick="closeMobileCartDrawer()" class="p-1.5 rounded-xl bg-white border border-stone-200 text-stone-500 hover:text-stone-800">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+      <div id="mobileCartBody" class="flex-1 overflow-y-auto p-5 space-y-5">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Item Customization Modal -->
+  <div id="customModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div onclick="closeCustomModal()" class="fixed inset-0 bg-black/55 backdrop-blur-xs"></div>
+    <div class="relative bg-white rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl z-10">
+      <!-- Modal Header -->
+      <div class="px-6 py-4 bg-brand-cream border-b border-stone-200 flex items-start justify-between gap-4">
+        <div>
+          <span id="modalItemCategory" class="inline-block text-xs font-semibold text-brand-green bg-brand-greenLight px-2.5 py-0.5 rounded-full mb-1">蒸烤餐盒系列</span>
+          <h3 id="modalItemName" class="text-xl font-bold text-brand-ink">餐點名稱</h3>
+          <p id="modalItemDesc" class="text-xs text-brand-muted mt-1 leading-relaxed">餐點詳細介紹</p>
+        </div>
+        <button onclick="closeCustomModal()" class="p-2 rounded-xl bg-white border border-stone-200 text-stone-500 hover:text-stone-800 shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <!-- Modal Scrollable Options -->
+      <div class="p-6 overflow-y-auto space-y-6 flex-1" id="modalOptionsContainer">
+        <!-- Base / Rice Option (Shown for Bento items) -->
+        <div id="baseOptionSection">
+          <div class="flex items-center justify-between mb-2.5">
+            <h4 class="font-bold text-sm text-brand-ink">主食 / 飯量選擇</h4>
+            <span class="text-xs font-medium px-2 py-0.5 rounded-md bg-brand-sand text-brand-muted">必選</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="baseOptionsGrid">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Sauce / Seasoning Option -->
+        <div id="sauceOptionSection">
+          <div class="flex items-center justify-between mb-2.5">
+            <h4 class="font-bold text-sm text-brand-ink">醬料 / 調味選擇</h4>
+            <span class="text-xs font-medium px-2 py-0.5 rounded-md bg-brand-sand text-brand-muted">必選</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="sauceOptionsGrid">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Add-ons -->
+        <div id="addonOptionSection">
+          <div class="flex items-center justify-between mb-2.5">
+            <h4 class="font-bold text-sm text-brand-ink">健康加購配料</h4>
+            <span class="text-xs text-brand-muted">可複選</span>
+          </div>
+          <div class="space-y-2" id="addonOptionsList">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Special Notes -->
+        <div>
+          <label for="modalItemNote" class="block font-bold text-sm text-brand-ink mb-2">餐點客製化備註</label>
+          <input type="text" id="modalItemNote" placeholder="例如：不要蔥花、少鹽、餐具需求..."
+                 class="w-full px-3.5 py-2.5 text-sm rounded-xl border border-stone-300 bg-brand-cream focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-green" />
+        </div>
+      </div>
+
+      <!-- Modal Footer: Quantity & Add to Cart -->
+      <div class="px-6 py-4 bg-white border-t border-stone-200 flex items-center justify-between gap-4">
+        <div class="flex items-center gap-2 bg-brand-sand p-1 rounded-xl border border-stone-200">
+          <button type="button" onclick="adjustModalQty(-1)" class="w-9 h-9 rounded-lg bg-white text-brand-ink font-bold shadow-xs hover:bg-stone-100 flex items-center justify-center">-</button>
+          <span id="modalQtyDisplay" class="w-8 text-center font-bold text-base">1</span>
+          <button type="button" onclick="adjustModalQty(1)" class="w-9 h-9 rounded-lg bg-white text-brand-ink font-bold shadow-xs hover:bg-stone-100 flex items-center justify-center">+</button>
+        </div>
+
+        <button type="button" onclick="confirmAddToCart()" class="flex-1 py-3 px-5 rounded-2xl bg-brand-green hover:bg-brand-greenDark text-white font-bold text-sm sm:text-base shadow-md transition flex items-center justify-center gap-2">
+          <span>加入購物車</span>
+          <span>•</span>
+          <span id="modalCalculatedPrice">NT$ 0</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Confirmation / Receipt Modal -->
+  <div id="receiptModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-xs"></div>
+    <div class="relative bg-white rounded-3xl max-w-md w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl z-10">
+      <div id="receiptPrintable" class="p-6 overflow-y-auto space-y-4 bg-white">
+        <!-- Success Header -->
+        <div class="text-center pb-4 border-b border-dashed border-stone-300">
+          <div class="w-12 h-12 mx-auto mb-2.5 rounded-full bg-brand-greenLight text-brand-green flex items-center justify-center">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <h3 class="text-xl font-bold text-brand-ink">訂單已成立！</h3>
+          <p class="text-xs text-brand-muted mt-0.5">非晉餐廚蒸烤料理 ・ 感謝您的訂購</p>
+          <div class="mt-3 inline-block px-4 py-1.5 rounded-xl bg-brand-sand border border-stone-200">
+            <span class="text-xs text-brand-muted block">取餐單號</span>
+            <span id="receiptOrderId" class="text-lg font-mono font-bold text-brand-green">#FJ-0000</span>
+          </div>
+        </div>
+
+        <!-- Customer & Pickup Info -->
+        <div id="receiptMeta" class="text-xs space-y-1.5 bg-brand-cream p-3.5 rounded-2xl border border-stone-200/70">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Itemized List -->
+        <div>
+          <h4 class="text-xs font-bold text-brand-muted uppercase tracking-wider mb-2">餐點明細</h4>
+          <div id="receiptItems" class="space-y-2.5 text-sm border-b border-dashed border-stone-300 pb-3">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Totals -->
+        <div id="receiptTotals" class="space-y-1 text-sm">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Receipt Action Buttons -->
+      <div class="p-4 bg-brand-sand/60 border-t border-stone-200 grid grid-cols-2 gap-2.5">
+        <button onclick="copyReceiptText()" class="col-span-2 py-2.5 px-4 rounded-xl bg-brand-green hover:bg-brand-greenDark text-white font-bold text-sm flex items-center justify-center gap-2 shadow-xs transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+          複製訂單明細 (可貼至官方 LINE)
+        </button>
+        <button onclick="window.print()" class="py-2.5 px-4 rounded-xl bg-white border border-stone-300 hover:bg-stone-50 text-brand-ink font-semibold text-sm flex items-center justify-center gap-1.5 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          列印 / 存PDF
+        </button>
+        <button onclick="closeReceiptModal()" class="py-2.5 px-4 rounded-xl bg-brand-amber hover:bg-brand-amberDark text-white font-semibold text-sm transition">
+          完成並繼續點餐
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Menu Manager Modal (Edit Prices / Add Items) -->
+  <div id="menuManagerModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div onclick="closeMenuManager()" class="fixed inset-0 bg-black/55 backdrop-blur-xs"></div>
+    <div class="relative bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl z-10">
+      <div class="px-6 py-4 bg-brand-green text-white flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-bold">菜單管理（自訂價格與新增品項）</h3>
+          <p class="text-xs text-emerald-100">修改後的價格與品項會自動儲存在瀏覽器中，方便對照門市最新價目表</p>
+        </div>
+        <button onclick="closeMenuManager()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-6 flex-1">
+        <!-- Add New Item Form -->
+        <div class="p-4 rounded-2xl bg-brand-cream border border-stone-200">
+          <h4 class="font-bold text-sm text-brand-ink mb-3 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-brand-amber"></span>
+            新增自訂餐點
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+            <div class="sm:col-span-4">
+              <input type="text" id="newItemName" placeholder="餐點名稱 (例: 照燒鮭魚餐盒)" class="w-full px-3 py-2 text-sm rounded-xl border border-stone-300 bg-white" />
+            </div>
+            <div class="sm:col-span-3">
+              <select id="newItemCategory" class="w-full px-3 py-2 text-sm rounded-xl border border-stone-300 bg-white">
+                <option value="蒸烤餐盒系列">蒸烤餐盒系列</option>
+                <option value="義大利麵系列">義大利麵系列</option>
+                <option value="單點主食/配菜">單點主食/配菜</option>
+                <option value="健康飲品">健康飲品</option>
+              </select>
+            </div>
+            <div class="sm:col-span-2">
+              <input type="number" id="newItemPrice" placeholder="價格" min="0" class="w-full px-3 py-2 text-sm rounded-xl border border-stone-300 bg-white" />
+            </div>
+            <div class="sm:col-span-3">
+              <button onclick="addNewMenuItem()" class="w-full py-2 px-3 rounded-xl bg-brand-green hover:bg-brand-greenDark text-white text-sm font-bold transition">
+                + 新增品項
+              </button>
+            </div>
+            <div class="sm:col-span-8">
+              <input type="text" id="newItemDesc" placeholder="餐點簡介 (選填，例: 嚴選挪威鮭魚低溫蒸烤)" class="w-full px-3 py-2 text-sm rounded-xl border border-stone-300 bg-white" />
+            </div>
+            <div class="sm:col-span-4">
+              <input type="text" id="newItemTag" placeholder="標籤 (例: 高蛋白 / 新品)" class="w-full px-3 py-2 text-sm rounded-xl border border-stone-300 bg-white" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Existing Items Price Editor -->
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="font-bold text-sm text-brand-ink">現有品項價格與名稱調整</h4>
+            <button onclick="resetMenuToDefault()" class="text-xs text-red-600 hover:underline font-medium">恢復預設菜單</button>
+          </div>
+          <div id="managerItemList" class="space-y-2.5">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 py-4 bg-brand-sand/60 border-t border-stone-200 flex justify-end">
+        <button onclick="closeMenuManager()" class="px-6 py-2.5 rounded-xl bg-brand-green text-white font-bold text-sm hover:bg-brand-greenDark transition">
+          完成編輯
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Default Menu Data tailored for 非晉餐廚蒸烤料理 (Fly Into The Kitchen)
+     */
+    const DEFAULT_MENU = [
+      // 蒸烤餐盒系列
+      {
+        id: 'bento-1',
+        category: '蒸烤餐盒系列',
+        name: '舒肥嫩雞胸蒸烤餐盒',
+        price: 120,
+        tag: '低脂高蛋白',
+        kcal: '465 kcal',
+        desc: '低溫舒肥鎖住鮮嫩肉汁，搭配蒸烤季節時蔬與香Q紫米五穀飯，健身輕食首選。',
+        customizableType: 'bento',
+        accent: 'emerald'
+      },
+      {
+        id: 'bento-2',
+        category: '蒸烤餐盒系列',
+        name: '義式香草烤雞腿排餐盒',
+        price: 135,
+        tag: '人氣招牌',
+        kcal: '560 kcal',
+        desc: '去骨鮮嫩雞腿排以義式迷迭香與橄欖油醃漬，高溫蒸烤逼出多餘油脂，外香內嫩。',
+        customizableType: 'bento',
+        accent: 'amber'
+      },
+      {
+        id: 'bento-3',
+        category: '蒸烤餐盒系列',
+        name: '挪威薄鹽鯖魚蒸烤餐盒',
+        price: 140,
+        tag: '富含Omega-3',
+        kcal: '530 kcal',
+        desc: '嚴選挪威北大西洋鯖魚，薄鹽蒸烤保留天然魚油香氣，擠上新鮮檸檬更清爽。',
+        customizableType: 'bento',
+        accent: 'sky'
+      },
+      {
+        id: 'bento-4',
+        category: '蒸烤餐盒系列',
+        name: '蒜香板腱牛排蒸烤餐盒',
+        price: 165,
+        tag: '主廚推薦',
+        kcal: '590 kcal',
+        desc: '精選嫩肩板腱牛排精準控溫蒸烤，肉香濃郁帶微脆筋膜口感，佐金黃香蒜片。',
+        customizableType: 'bento',
+        accent: 'rose'
+      },
+      {
+        id: 'bento-5',
+        category: '蒸烤餐盒系列',
+        name: '醬燒松阪豬蒸烤餐盒',
+        price: 155,
+        tag: '脆彈口感',
+        kcal: '575 kcal',
+        desc: '黃金六兩松阪豬以特製薄鹽日式照燒醬微炙蒸烤，口感脆彈不油膩。',
+        customizableType: 'bento',
+        accent: 'amber'
+      },
+      {
+        id: 'bento-6',
+        category: '蒸烤餐盒系列',
+        name: '鮮蔬野菇素食蒸烤餐盒',
+        price: 110,
+        tag: '蛋奶素可',
+        kcal: '395 kcal',
+        desc: '多款產地直送時蔬、杏鮑菇與香菇高溫蒸烤鎖甜，搭配原味堅果與五穀紫米飯。',
+        customizableType: 'bento',
+        accent: 'emerald'
+      },
+
+      // 義大利麵系列
+      {
+        id: 'pasta-1',
+        category: '義大利麵系列',
+        name: '青醬嫩雞胸義大利麵',
+        price: 145,
+        tag: '手作羅勒青醬',
+        kcal: '610 kcal',
+        desc: '新鮮九層塔與堅果研磨青醬，拌入彈牙杜蘭小麥直麵與厚切舒肥雞胸。',
+        customizableType: 'pasta',
+        accent: 'emerald'
+      },
+      {
+        id: 'pasta-2',
+        category: '義大利麵系列',
+        name: '蒜香白酒蛤蜊義大利麵',
+        price: 155,
+        tag: '清爽海味',
+        kcal: '540 kcal',
+        desc: '每日新鮮吐沙大蛤蜊，搭配蒜片、橄欖油與白酒清炒收汁，鮮甜無負擔。',
+        customizableType: 'pasta',
+        accent: 'sky'
+      },
+      {
+        id: 'pasta-3',
+        category: '義大利麵系列',
+        name: '茄汁炙燒雞腿義大利麵',
+        price: 155,
+        tag: '酸甜開胃',
+        kcal: '640 kcal',
+        desc: '天然完熟番茄慢熬紅醬，搭配蒸烤香草雞腿排，酸甜濃郁、層次豐富。',
+        customizableType: 'pasta',
+        accent: 'rose'
+      },
+      {
+        id: 'pasta-4',
+        category: '義大利麵系列',
+        name: '松露野菇奶油義大利麵',
+        price: 160,
+        tag: '濃郁系',
+        kcal: '660 kcal',
+        desc: '黑松露醬融合多種蒸烤野菇與輕盈鮮奶油白醬，香氣撲鼻（可做五辛素）。',
+        customizableType: 'pasta',
+        accent: 'amber'
+      },
+
+      // 單點主食/配菜
+      {
+        id: 'side-1',
+        category: '單點主食/配菜',
+        name: '單點舒肥雞胸',
+        price: 65,
+        tag: '蛋白質 +28g',
+        kcal: '165 kcal',
+        desc: '整塊低溫舒肥雞胸肉，增肌減脂加肉最佳選擇。',
+        customizableType: 'simple',
+        accent: 'emerald'
+      },
+      {
+        id: 'side-2',
+        category: '單點主食/配菜',
+        name: '單點香草烤雞腿',
+        price: 80,
+        tag: '蛋白質 +32g',
+        kcal: '250 kcal',
+        desc: '整支無骨義式香草蒸烤雞腿排。',
+        customizableType: 'simple',
+        accent: 'amber'
+      },
+      {
+        id: 'side-3',
+        category: '單點主食/配菜',
+        name: '蒸烤季節時蔬',
+        price: 45,
+        tag: '高纖補充',
+        kcal: '85 kcal',
+        desc: '花椰菜、玉米筍、南瓜與地瓜等當日新鮮蒸烤蔬菜拼盤。',
+        customizableType: 'simple',
+        accent: 'emerald'
+      },
+      {
+        id: 'side-4',
+        category: '單點主食/配菜',
+        name: '水煮溏心蛋',
+        price: 20,
+        tag: '經典加點',
+        kcal: '70 kcal',
+        desc: '滑嫩半熟蛋黃，日式薄鹽柴魚高湯浸漬。',
+        customizableType: 'simple',
+        accent: 'amber'
+      },
+
+      // 健康飲品
+      {
+        id: 'drink-1',
+        category: '健康飲品',
+        name: '無糖四季春冷泡茶',
+        price: 35,
+        tag: '無糖回甘',
+        kcal: '0 kcal',
+        desc: '台灣高山四季春原葉低溫冷泡，清香解膩零熱量。',
+        customizableType: 'simple',
+        accent: 'emerald'
+      },
+      {
+        id: 'drink-2',
+        category: '健康飲品',
+        name: '蜂蜜檸檬氣泡飲',
+        price: 50,
+        tag: '清爽維C',
+        kcal: '85 kcal',
+        desc: '屏東新鮮檸檬汁搭配純天然龍眼蜜與綿密氣泡水。',
+        customizableType: 'simple',
+        accent: 'amber'
+      },
+      {
+        id: 'drink-3',
+        category: '健康飲品',
+        name: '無糖濃豆漿',
+        price: 35,
+        tag: '植物蛋白',
+        kcal: '110 kcal',
+        desc: '非基改黃豆現磨熬煮，香濃滑順無加糖。',
+        customizableType: 'simple',
+        accent: 'sky'
+      }
+    ];
+
+    const CATEGORIES = ['全部餐點', '蒸烤餐盒系列', '義大利麵系列', '單點主食/配菜', '健康飲品'];
+
+    const BASE_OPTIONS = [
+      { id: 'rice-normal', label: '紫米五穀飯 (正常)', priceDelta: 0 },
+      { id: 'rice-less', label: '紫米五穀飯 (少飯)', priceDelta: 0 },
+      { id: 'veg-swap', label: '飯換綜合時蔬', priceDelta: 10 },
+      { id: 'no-rice', label: '不需要飯', priceDelta: -5 }
+    ];
+
+    const SAUCE_OPTIONS = [
+      { id: 'sauce-salt', label: '招牌海鹽胡椒', priceDelta: 0 },
+      { id: 'sauce-herb', label: '義式香草醬', priceDelta: 0 },
+      { id: 'sauce-yuzu', label: '日式和風柚子醬', priceDelta: 0 },
+      { id: 'sauce-separate', label: '醬料分開裝', priceDelta: 0 }
+    ];
+
+    const ADDON_OPTIONS = [
+      { id: 'addon-egg', label: '溏心蛋', priceDelta: 20 },
+      { id: 'addon-meat', label: '雙倍主肉', priceDelta: 55 },
+      { id: 'addon-broccoli', label: '額外花椰菜', priceDelta: 20 }
+    ];
+
+    // Application State
+    let menuItems = [];
+    let activeCategory = '全部餐點';
+    let orderMode = '外帶自取';
+    let cart = [];
+    let promoCode = '';
+    let promoDiscountRate = 0;
+
+    // Customer Form State (persisted across re-renders)
+    let customerForm = {
+      name: '',
+      phone: '',
+      pickupTime: '盡快取餐 (約 15-20 分鐘)',
+      paymentMethod: '現金付款',
+      taxId: ''
+    };
+
+    // Modal State
+    let currentModalItem = null;
+    let modalQty = 1;
+    let selectedBase = BASE_OPTIONS[0];
+    let selectedSauce = SAUCE_OPTIONS[0];
+    let selectedAddons = new Set();
+
+    // Last Receipt Text for Clipboard Copy
+    let lastGeneratedReceiptText = '';
+
+    /**
+     * Initialize App
+     */
+    function initApp() {
+      const savedMenu = localStorage.getItem('fly_kitchen_menu_v1');
+      if (savedMenu) {
+        try {
+          menuItems = JSON.parse(savedMenu);
+        } catch (e) {
+          menuItems = [...DEFAULT_MENU];
+        }
+      } else {
+        menuItems = [...DEFAULT_MENU];
+      }
+
+      const savedCart = localStorage.getItem('fly_kitchen_cart_v1');
+      if (savedCart) {
+        try {
+          cart = JSON.parse(savedCart);
+        } catch (e) {
+          cart = [];
+        }
+      }
+
+      renderCategoryTabs();
+      renderMenu();
+      renderCartUI();
+    }
+
+    /**
+     * Show Custom Toast Notification (No alert() used)
+     */
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      const bgClass = type === 'error'
+        ? 'bg-red-600 text-white'
+        : type === 'info'
+          ? 'bg-brand-ink text-white'
+          : 'bg-brand-green text-white';
+
+      toast.className = `${bgClass} px-4 py-3 rounded-2xl shadow-lg text-sm font-medium flex items-center gap-2.5 pointer-events-auto transform transition-all duration-300 translate-y-0 opacity-100`;
+      toast.innerHTML = `
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          ${type === 'error'
+            ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>'
+            : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>'}
+        </svg>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', '-translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 2600);
+    }
+
+    /**
+     * Order Mode Switcher
+     */
+    function setOrderMode(mode) {
+      orderMode = mode;
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        if (btn.dataset.mode === mode) {
+          btn.className = 'mode-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-brand-green text-white shadow-sm';
+        } else {
+          btn.className = 'mode-btn px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-brand-muted hover:text-brand-ink';
+        }
+      });
+
+      const tableWrap = document.getElementById('tableNumberWrap');
+      const deliveryWrap = document.getElementById('deliveryAddressWrap');
+      tableWrap.classList.toggle('hidden', mode !== '內用點餐');
+      tableWrap.classList.toggle('flex', mode === '內用點餐');
+      deliveryWrap.classList.toggle('hidden', mode !== '外送服務');
+      deliveryWrap.classList.toggle('flex', mode === '外送服務');
+    }
+
+    /**
+     * Render Category Tabs
+     */
+    function renderCategoryTabs() {
+      const container = document.getElementById('categoryTabs');
+      container.innerHTML = CATEGORIES.map(cat => {
+        const isActive = cat === activeCategory;
+        return `
+          <button onclick="selectCategory('${cat}')"
+                  class="px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition cursor-pointer ${
+                    isActive
+                      ? 'bg-brand-green text-white shadow-sm'
+                      : 'bg-white text-brand-muted border border-stone-200 hover:border-brand-green/50 hover:text-brand-ink'
+                  }">
+            ${cat}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectCategory(cat) {
+      activeCategory = cat;
+      document.getElementById('activeCategoryTitle').textContent = cat;
+      renderCategoryTabs();
+      renderMenu();
+    }
+
+    function clearSearch() {
+      document.getElementById('searchInput').value = '';
+      renderMenu();
+    }
+
+    function resetFilters() {
+      activeCategory = '全部餐點';
+      document.getElementById('searchInput').value = '';
+      document.getElementById('activeCategoryTitle').textContent = '全部餐點';
+      renderCategoryTabs();
+      renderMenu();
+    }
+
+    /**
+     * Generate Appetizing Food Illustration SVG Badge by Category
+     */
+    function getFoodIllustration(item) {
+      if (item.category === '蒸烤餐盒系列') {
+        return `
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-50 to-amber-50 border border-stone-200/70 flex items-center justify-center shrink-0 relative overflow-hidden">
+            <svg class="w-10 h-10 text-brand-green" viewBox="0 0 48 48" fill="none">
+              <rect x="6" y="14" width="36" height="24" rx="6" fill="#E9F2ED" stroke="#2E5A44" stroke-width="2.2"/>
+              <path d="M24 14v24M24 26h18" stroke="#2E5A44" stroke-width="2"/>
+              <circle cx="15" cy="26" r="5" fill="#D97736" opacity="0.85"/>
+              <circle cx="33" cy="20" r="3" fill="#4E8D6D"/>
+              <circle cx="33" cy="32" r="3" fill="#EAB308"/>
+              <path d="M18 9c0-2 2-3 2-5M24 9c0-2 2-3 2-5M30 9c0-2 2-3 2-5" stroke="#D97736" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+        `;
+      } else if (item.category === '義大利麵系列') {
+        return `
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50 border border-stone-200/70 flex items-center justify-center shrink-0">
+            <svg class="w-10 h-10 text-brand-amber" viewBox="0 0 48 48" fill="none">
+              <path d="M8 26h32c0 8.837-7.163 14-16 14S8 34.837 8 26z" fill="#FEF3C7" stroke="#D97736" stroke-width="2.2"/>
+              <path d="M12 24c4-6 8-6 12 0s8 6 12 0" stroke="#D97736" stroke-width="2.2" stroke-linecap="round"/>
+              <path d="M15 20c3-4 6-4 9 0s6 4 9 0" stroke="#2E5A44" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="24" cy="15" r="2.5" fill="#DC2626"/>
+            </svg>
+          </div>
+        `;
+      } else if (item.category === '健康飲品') {
+        return `
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-50 to-emerald-50 border border-stone-200/70 flex items-center justify-center shrink-0">
+            <svg class="w-10 h-10 text-brand-green" viewBox="0 0 48 48" fill="none">
+              <path d="M15 14h18l-2 24a3 3 0 01-3 3h-8a3 3 0 01-3-3l-2-24z" fill="#E0F2FE" stroke="#2E5A44" stroke-width="2.2"/>
+              <path d="M27 14l4-7" stroke="#D97736" stroke-width="2.2" stroke-linecap="round"/>
+              <circle cx="24" cy="27" r="4" fill="#FACC15" opacity="0.8"/>
+            </svg>
+          </div>
+        `;
+      } else {
+        return `
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-stone-50 to-amber-50 border border-stone-200/70 flex items-center justify-center shrink-0">
+            <svg class="w-10 h-10 text-brand-amber" viewBox="0 0 48 48" fill="none">
+              <ellipse cx="24" cy="28" rx="16" ry="9" fill="#FDE68A" stroke="#D97736" stroke-width="2.2"/>
+              <circle cx="21" cy="26" r="4" fill="#2E5A44"/>
+              <circle cx="28" cy="27" r="3.5" fill="#D97736"/>
+            </svg>
+          </div>
+        `;
+      }
+    }
+
+    /**
+     * Render Menu Grid
+     */
+    function renderMenu() {
+      const searchVal = document.getElementById('searchInput').value.trim().toLowerCase();
+      document.getElementById('clearSearchBtn').classList.toggle('hidden', searchVal.length === 0);
+
+      const filtered = menuItems.filter(item => {
+        const matchCat = activeCategory === '全部餐點' || item.category === activeCategory;
+        const matchSearch = !searchVal ||
+          item.name.toLowerCase().includes(searchVal) ||
+          (item.desc && item.desc.toLowerCase().includes(searchVal)) ||
+          (item.tag && item.tag.toLowerCase().includes(searchVal));
+        return matchCat && matchSearch;
+      });
+
+      document.getElementById('itemCountLabel').textContent = `共 ${filtered.length} 道料理`;
+
+      const grid = document.getElementById('menuGrid');
+      const emptyState = document.getElementById('emptyMenuState');
+
+      if (filtered.length === 0) {
+        grid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      grid.innerHTML = filtered.map(item => `
+        <div onclick="openCustomModal('${item.id}')"
+             class="group bg-white rounded-2xl p-4 border border-stone-200/80 hover:border-brand-green/60 shadow-xs hover:shadow-md transition-all cursor-pointer flex flex-col justify-between">
+          <div class="flex items-start gap-3.5">
+            ${getFoodIllustration(item)}
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                ${item.tag ? `<span class="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-brand-greenLight text-brand-green">${item.tag}</span>` : ''}
+                ${item.kcal ? `<span class="text-[11px] text-brand-muted font-medium">${item.kcal}</span>` : ''}
+              </div>
+              <h3 class="font-bold text-base text-brand-ink group-hover:text-brand-green transition leading-snug">${item.name}</h3>
+              <p class="text-xs text-brand-muted mt-1 line-clamp-2 leading-relaxed">${item.desc || '新鮮蒸烤料理，健康少油無負擔。'}</p>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-stone-100 flex items-center justify-between">
+            <div class="flex items-baseline gap-1">
+              <span class="text-xs font-semibold text-brand-amber">NT$</span>
+              <span class="text-lg font-bold text-brand-ink">${item.price}</span>
+            </div>
+            <button type="button"
+                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-brand-cream group-hover:bg-brand-green text-brand-green group-hover:text-white text-xs font-bold border border-brand-green/20 transition">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+              選擇客製
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    /**
+     * Open Customization Modal
+     */
+    function openCustomModal(itemId) {
+      const item = menuItems.find(i => i.id === itemId);
+      if (!item) return;
+
+      currentModalItem = item;
+      modalQty = 1;
+      selectedBase = BASE_OPTIONS[0];
+      selectedSauce = SAUCE_OPTIONS[0];
+      selectedAddons = new Set();
+
+      document.getElementById('modalItemCategory').textContent = item.category;
+      document.getElementById('modalItemName').textContent = item.name;
+      document.getElementById('modalItemDesc').textContent = item.desc || '';
+      document.getElementById('modalItemNote').value = '';
+      document.getElementById('modalQtyDisplay').textContent = '1';
+
+      // Show/hide relevant customization sections based on item type
+      const isBento = item.customizableType === 'bento';
+      const isSimple = item.customizableType === 'simple';
+
+      document.getElementById('baseOptionSection').classList.toggle('hidden', !isBento);
+      document.getElementById('sauceOptionSection').classList.toggle('hidden', isSimple);
+      document.getElementById('addonOptionSection').classList.toggle('hidden', isSimple);
+
+      renderModalOptions();
+      updateModalPrice();
+
+      const modal = document.getElementById('customModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeCustomModal() {
+      const modal = document.getElementById('customModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      currentModalItem = null;
+    }
+
+    function renderModalOptions() {
+      // Base Options
+      document.getElementById('baseOptionsGrid').innerHTML = BASE_OPTIONS.map(opt => {
+        const active = selectedBase.id === opt.id;
+        const deltaStr = opt.priceDelta > 0 ? `+$${opt.priceDelta}` : opt.priceDelta < 0 ? `-$${Math.abs(opt.priceDelta)}` : '免費';
+        return `
+          <button type="button" onclick="selectBaseOption('${opt.id}')"
+                  class="p-3 rounded-xl border text-left transition flex items-center justify-between ${
+                    active ? 'border-brand-green bg-brand-greenLight/70 text-brand-ink font-semibold' : 'border-stone-200 hover:border-stone-300 text-brand-muted'
+                  }">
+            <span class="text-xs sm:text-sm">${opt.label}</span>
+            <span class="text-xs font-medium ${active ? 'text-brand-green' : 'text-stone-400'}">${deltaStr}</span>
+          </button>
+        `;
+      }).join('');
+
+      // Sauce Options
+      document.getElementById('sauceOptionsGrid').innerHTML = SAUCE_OPTIONS.map(opt => {
+        const active = selectedSauce.id === opt.id;
+        return `
+          <button type="button" onclick="selectSauceOption('${opt.id}')"
+                  class="p-3 rounded-xl border text-left transition flex items-center justify-between ${
+                    active ? 'border-brand-green bg-brand-greenLight/70 text-brand-ink font-semibold' : 'border-stone-200 hover:border-stone-300 text-brand-muted'
+                  }">
+            <span class="text-xs sm:text-sm">${opt.label}</span>
+            <span class="w-4 h-4 rounded-full border flex items-center justify-center ${active ? 'border-brand-green bg-brand-green' : 'border-stone-300'}">
+              ${active ? '<span class="w-1.5 h-1.5 rounded-full bg-white"></span>' : ''}
+            </span>
+          </button>
+        `;
+      }).join('');
+
+      // Add-on Options
+      document.getElementById('addonOptionsList').innerHTML = ADDON_OPTIONS.map(opt => {
+        const checked = selectedAddons.has(opt.id);
+        return `
+          <button type="button" onclick="toggleAddonOption('${opt.id}')"
+                  class="w-full p-3 rounded-xl border text-left transition flex items-center justify-between ${
+                    checked ? 'border-brand-amber bg-amber-50/70 text-brand-ink font-semibold' : 'border-stone-200 hover:border-stone-300 text-brand-muted'
+                  }">
+            <div class="flex items-center gap-2.5">
+              <span class="w-4 h-4 rounded flex items-center justify-center border ${checked ? 'bg-brand-amber border-brand-amber text-white' : 'border-stone-300 bg-white'}">
+                ${checked ? '<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>' : ''}
+              </span>
+              <span class="text-xs sm:text-sm">${opt.label}</span>
+            </div>
+            <span class="text-xs font-bold text-brand-amber">+$${opt.priceDelta}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectBaseOption(id) {
+      selectedBase = BASE_OPTIONS.find(o => o.id === id) || BASE_OPTIONS[0];
+      renderModalOptions();
+      updateModalPrice();
+    }
+
+    function selectSauceOption(id) {
+      selectedSauce = SAUCE_OPTIONS.find(o => o.id === id) || SAUCE_OPTIONS[0];
+      renderModalOptions();
+      updateModalPrice();
+    }
+
+    function toggleAddonOption(id) {
+      if (selectedAddons.has(id)) {
+        selectedAddons.delete(id);
+      } else {
+        selectedAddons.add(id);
+      }
+      renderModalOptions();
+      updateModalPrice();
+    }
+
+    function adjustModalQty(delta) {
+      modalQty = Math.max(1, modalQty + delta);
+      document.getElementById('modalQtyDisplay').textContent = modalQty;
+      updateModalPrice();
+    }
+
+    function calculateModalUnitPrice() {
+      if (!currentModalItem) return 0;
+      let unit = currentModalItem.price;
+      if (currentModalItem.customizableType === 'bento') {
+        unit += selectedBase.priceDelta;
+      }
+      if (currentModalItem.customizableType !== 'simple') {
+        selectedAddons.forEach(addonId => {
+          const found = ADDON_OPTIONS.find(a => a.id === addonId);
+          if (found) unit += found.priceDelta;
+        });
+      }
+      return Math.max(0, unit);
+    }
+
+    function updateModalPrice() {
+      const total = calculateModalUnitPrice() * modalQty;
+      document.getElementById('modalCalculatedPrice').textContent = `NT$ ${total}`;
+    }
+
+    /**
+     * Add Customized Item to Cart
+     */
+    function confirmAddToCart() {
+      if (!currentModalItem) return;
+
+      const unitPrice = calculateModalUnitPrice();
+      const details = [];
+
+      if (currentModalItem.customizableType === 'bento') {
+        details.push(selectedBase.label);
+      }
+      if (currentModalItem.customizableType !== 'simple') {
+        details.push(selectedSauce.label);
+        selectedAddons.forEach(id => {
+          const a = ADDON_OPTIONS.find(x => x.id === id);
+          if (a) details.push(`加購${a.label}`);
+        });
+      }
+
+      const note = document.getElementById('modalItemNote').value.trim();
+      if (note) details.push(`備註: ${note}`);
+
+      const signature = `${currentModalItem.id}|${details.join(',')}`;
+      const existingIndex = cart.findIndex(c => c.signature === signature);
+
+      if (existingIndex > -1) {
+        cart[existingIndex].qty += modalQty;
+      } else {
+        cart.push({
+          uid: Date.now().toString() + Math.random().toString(36).slice(2, 6),
+          signature,
+          itemId: currentModalItem.id,
+          name: currentModalItem.name,
+          unitPrice,
+          qty: modalQty,
+          details
+        });
+      }
+
+      saveCart();
+      renderCartUI();
+      showToast(`已將「${currentModalItem.name}」加入購物車`);
+      closeCustomModal();
+    }
+
+    function saveCart() {
+      localStorage.setItem('fly_kitchen_cart_v1', JSON.stringify(cart));
+    }
+
+    function updateCartItemQty(uid, delta) {
+      const idx = cart.findIndex(c => c.uid === uid);
+      if (idx === -1) return;
+      cart[idx].qty += delta;
+      if (cart[idx].qty <= 0) {
+        cart.splice(idx, 1);
+      }
+      saveCart();
+      renderCartUI();
+    }
+
+    function removeCartItem(uid) {
+      cart = cart.filter(c => c.uid !== uid);
+      saveCart();
+      renderCartUI();
+    }
+
+    function clearCart() {
+      cart = [];
+      saveCart();
+      renderCartUI();
+      showToast('已清空購物車', 'info');
+    }
+
+    /**
+     * Promo Code Logic
+     */
+    function applyPromoQuick(code) {
+      promoCode = code;
+      promoDiscountRate = 0.10;
+      renderCartUI();
+      showToast('已套用優惠碼 FLY10（享 9 折優惠）！');
+    }
+
+    function handlePromoSubmit(prefix) {
+      const input = document.getElementById(`${prefix}PromoInput`);
+      if (!input) return;
+      const code = input.value.trim().toUpperCase();
+      if (code === 'FLY10') {
+        promoCode = 'FLY10';
+        promoDiscountRate = 0.10;
+        showToast('優惠碼 FLY10 套用成功！全單享 9 折');
+      } else if (code === 'HEALTH20') {
+        promoCode = 'HEALTH20';
+        promoDiscountRate = 0.10;
+        showToast('優惠碼 HEALTH20 套用成功！全單享 9 折');
+      } else if (code === '') {
+        promoCode = '';
+        promoDiscountRate = 0;
+      } else {
+        showToast('無效的優惠碼，請嘗試輸入 FLY10', 'error');
+        return;
+      }
+      renderCartUI();
+    }
+
+    function syncCustomerField(field, value) {
+      customerForm[field] = value;
+    }
+
+    /**
+     * Build Cart & Checkout Inner HTML (Shared between Desktop Sidebar & Mobile Drawer)
+     */
+    function buildCartHTML(prefix) {
+      const totalCount = cart.reduce((sum, i) => sum + i.qty, 0);
+      const subtotal = cart.reduce((sum, i) => sum + i.unitPrice * i.qty, 0);
+      const discount = Math.round(subtotal * promoDiscountRate);
+      const grandTotal = Math.max(0, subtotal - discount);
+
+      if (cart.length === 0) {
+        return `
+          <div class="text-center py-10">
+            <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-brand-cream border border-stone-200 flex items-center justify-center text-brand-muted">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            </div>
+            <p class="font-bold text-brand-ink text-sm">購物車目前是空的</p>
+            <p class="text-xs text-brand-muted mt-1">請從左側菜單點選您喜愛的健康蒸烤料理</p>
+          </div>
+        `;
+      }
+
+      const itemsHTML = cart.map(item => `
+        <div class="p-3.5 rounded-2xl bg-brand-cream/80 border border-stone-200/80 flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <h4 class="font-bold text-sm text-brand-ink leading-snug">${item.name}</h4>
+            ${item.details.length > 0 ? `<p class="text-[11px] text-brand-muted mt-1 leading-relaxed">${item.details.join(' ・ ')}</p>` : ''}
+            <div class="mt-2 flex items-center gap-2">
+              <div class="inline-flex items-center bg-white rounded-lg border border-stone-200 p-0.5">
+                <button type="button" onclick="updateCartItemQty('${item.uid}', -1)" class="w-6 h-6 rounded-md hover:bg-stone-100 text-brand-ink font-bold text-xs flex items-center justify-center">-</button>
+                <span class="w-6 text-center text-xs font-bold">${item.qty}</span>
+                <button type="button" onclick="updateCartItemQty('${item.uid}', 1)" class="w-6 h-6 rounded-md hover:bg-stone-100 text-brand-ink font-bold text-xs flex items-center justify-center">+</button>
+              </div>
+              <button type="button" onclick="removeCartItem('${item.uid}')" class="text-[11px] text-stone-400 hover:text-red-500 transition">移除</button>
+            </div>
+          </div>
+          <div class="text-right shrink-0">
+            <span class="font-bold text-sm text-brand-ink">NT$ ${item.unitPrice * item.qty}</span>
+            <span class="block text-[10px] text-brand-muted">單價 $${item.unitPrice}</span>
+          </div>
+        </div>
+      `).join('');
+
+      return `
+        <!-- Cart Item List -->
+        <div class="space-y-2.5">
+          ${itemsHTML}
+        </div>
+
+        <!-- Promo Code Box -->
+        <div class="pt-3 border-t border-stone-200">
+          <label class="block text-xs font-bold text-brand-ink mb-1.5">優惠折扣碼</label>
+          <div class="flex gap-2">
+            <input type="text" id="${prefix}PromoInput" value="${promoCode}" placeholder="輸入 FLY10 享 9 折"
+                   class="flex-1 px-3 py-2 text-xs rounded-xl border border-stone-300 bg-brand-cream focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-green uppercase" />
+            <button type="button" onclick="handlePromoSubmit('${prefix}')"
+                    class="px-3.5 py-2 rounded-xl bg-brand-ink hover:bg-black text-white text-xs font-bold transition">
+              套用
+            </button>
+          </div>
+        </div>
+
+        <!-- Price Summary -->
+        <div class="p-3.5 rounded-2xl bg-brand-sand/60 space-y-1.5 text-xs">
+          <div class="flex justify-between text-brand-muted">
+            <span>餐點小計 (${totalCount} 份)</span>
+            <span>NT$ ${subtotal}</span>
+          </div>
+          ${discount > 0 ? `
+            <div class="flex justify-between text-brand-green font-semibold">
+              <span>優惠折扣 (${promoCode} 9折)</span>
+              <span>- NT$ ${discount}</span>
+            </div>
+          ` : ''}
+          <div class="flex justify-between items-baseline pt-2 border-t border-stone-200/80 text-brand-ink font-bold">
+            <span class="text-sm">應付總金額</span>
+            <span class="text-lg text-brand-amber">NT$ ${grandTotal}</span>
+          </div>
+        </div>
+
+        <!-- Customer Checkout Details -->
+        <div class="space-y-3 pt-2 border-t border-stone-200">
+          <h4 class="font-bold text-xs uppercase tracking-wider text-brand-muted">訂購人與取餐資訊</h4>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-xs font-semibold text-brand-ink mb-1">訂購人姓名 <span class="text-red-500">*</span></label>
+              <input type="text" value="${customerForm.name}" oninput="syncCustomerField('name', this.value)" placeholder="王小明"
+                     class="w-full px-3 py-2 text-xs rounded-xl border border-stone-300 bg-brand-cream focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-green" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-brand-ink mb-1">聯絡電話 <span class="text-red-500">*</span></label>
+              <input type="tel" value="${customerForm.phone}" oninput="syncCustomerField('phone', this.value)" placeholder="0912-345-678"
+                     class="w-full px-3 py-2 text-xs rounded-xl border border-stone-300 bg-brand-cream focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-green" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-xs font-semibold text-brand-ink mb-1">預計取餐時間</label>
+              <select onchange="syncCustomerField('pickupTime', this.value)"
+                      class="w-full px-2.5 py-2 text-xs rounded-xl border border-stone-300 bg-brand-cream focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-green">
+                <option value="盡快取餐 (約 15-20 分鐘)" ${customerForm.pickupTime.includes('盡快') ? 'selected' : ''}>盡快取餐 (15-20分)</option>
+                <option value="11:30 午餐時段" ${customerForm.pickupTime === '11:30 午餐時段' ? 'selected' : ''}>11:30 午餐時段</option>
+                <option value="12:00 午餐時段" ${customerForm.pickupTime === '12:00 午餐時段' ? 'selected' : ''}>12:00 午餐時段</option>
+                <option value="12:30 午餐時段" ${customerForm.pickupTime === '12:30 午餐時段' ? 'selected' : ''}>12:30 午餐時段</option>
+                <option value="17:30 晚餐時段" ${customerForm.pickupTime === '17:30 晚餐時段' ? 'selected' : ''}>17:30 晚餐時段</option>
+                <option value="18:00 晚餐時段" ${customerForm.pickupTime === '18:00 晚餐時段' ? 'selected' : ''}>18:00 晚餐時段</option>
+                <option value="18:30 晚餐時段" ${customerForm.pickupTime === '18:30 晚餐時段' ? 'selected' : ''}>18:30 晚餐時段</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-brand-ink mb-1">付款方式</label>
+              <select onchange="syncCustomerField('paymentMethod', this.value)"
+                      class="w-full px-2.5 py-2 text-xs rounded-xl border border-stone-300 bg-brand-cream focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-green">
+                <option value="現金付款" ${customerForm.paymentMethod === '現金付款' ? 'selected' : ''}>現金付款</option>
+                <option value="LINE Pay" ${customerForm.paymentMethod === 'LINE Pay' ? 'selected' : ''}>LINE Pay</option>
+                <option value="街口支付" ${customerForm.paymentMethod === '街口支付' ? 'selected' : ''}>街口支付</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-brand-ink mb-1">統一編號 / 手機載具 (選填)</label>
+            <input type="text" value="${customerForm.taxId}" oninput="syncCustomerField('taxId', this.value)" placeholder="例如: 12345678 或 /AB12345"
+                   class="w-full px-3 py-2 text-xs rounded-xl border border-stone-300 bg-brand-cream focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-green" />
+          </div>
+
+          <button type="button" onclick="submitOrder()"
+                  class="w-full py-3.5 px-5 rounded-2xl bg-brand-amber hover:bg-brand-amberDark text-white font-bold text-sm shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
+            <span>送出訂單</span>
+            <span>•</span>
+            <span>NT$ ${grandTotal}</span>
+          </button>
+        </div>
+      `;
+    }
+
+    /**
+     * Render All Cart Views (Desktop + Mobile Bar + Mobile Drawer)
+     */
+    function renderCartUI() {
+      const totalCount = cart.reduce((sum, i) => sum + i.qty, 0);
+      const subtotal = cart.reduce((sum, i) => sum + i.unitPrice * i.qty, 0);
+      const discount = Math.round(subtotal * promoDiscountRate);
+      const grandTotal = Math.max(0, subtotal - discount);
+
+      // Badges & Clear buttons
+      document.getElementById('desktopCartBadge').textContent = totalCount;
+      document.getElementById('drawerCartBadge').textContent = totalCount;
+      document.getElementById('mobileCartCount').textContent = totalCount;
+      document.getElementById('mobileCartTotal').textContent = `NT$ ${grandTotal}`;
+
+      document.getElementById('desktopClearCartBtn').classList.toggle('hidden', cart.length === 0);
+      document.getElementById('drawerClearCartBtn').classList.toggle('hidden', cart.length === 0);
+
+      // Populate Desktop & Drawer Bodies
+      document.getElementById('desktopCartBody').innerHTML = buildCartHTML('desktop');
+      document.getElementById('mobileCartBody').innerHTML = buildCartHTML('mobile');
+    }
+
+    function openMobileCartDrawer() {
+      document.getElementById('mobileCartDrawer').classList.remove('hidden');
+    }
+
+    function closeMobileCartDrawer() {
+      document.getElementById('mobileCartDrawer').classList.add('hidden');
+    }
+
+    /**
+     * Submit Order & Generate Receipt
+     */
+    function submitOrder() {
+      if (cart.length === 0) {
+        showToast('購物車是空的，請先選擇餐點', 'error');
+        return;
+      }
+      if (!customerForm.name.trim()) {
+        showToast('請填寫訂購人姓名', 'error');
+        return;
+      }
+      if (!customerForm.phone.trim()) {
+        showToast('請填寫聯絡電話', 'error');
+        return;
+      }
+
+      let modeExtra = '';
+      if (orderMode === '內用點餐') {
+        const tableNo = document.getElementById('tableNumberInput').value.trim();
+        if (!tableNo) {
+          showToast('請在上方輸入內用桌號', 'error');
+          return;
+        }
+        modeExtra = ` (桌號: ${tableNo})`;
+      } else if (orderMode === '外送服務') {
+        const addr = document.getElementById('deliveryAddressInput').value.trim();
+        if (!addr) {
+          showToast('請在上方輸入外送地址', 'error');
+          return;
+        }
+        modeExtra = ` (地址: ${addr})`;
+      }
+
+      const now = new Date();
+      const orderId = `#FJ-${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${Math.floor(10 + Math.random() * 89)}`;
+      const timestamp = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      const subtotal = cart.reduce((sum, i) => sum + i.unitPrice * i.qty, 0);
+      const discount = Math.round(subtotal * promoDiscountRate);
+      const grandTotal = Math.max(0, subtotal - discount);
+
+      // Populate Receipt Modal
+      document.getElementById('receiptOrderId').textContent = orderId;
+      document.getElementById('receiptMeta').innerHTML = `
+        <div class="flex justify-between"><span class="text-brand-muted">訂購時間：</span><span class="font-medium">${timestamp}</span></div>
+        <div class="flex justify-between"><span class="text-brand-muted">用餐方式：</span><span class="font-bold text-brand-green">${orderMode}${modeExtra}</span></div>
+        <div class="flex justify-between"><span class="text-brand-muted">訂購人：</span><span class="font-medium">${customerForm.name} (${customerForm.phone})</span></div>
+        <div class="flex justify-between"><span class="text-brand-muted">預計取餐：</span><span class="font-medium">${customerForm.pickupTime}</span></div>
+        <div class="flex justify-between"><span class="text-brand-muted">付款方式：</span><span class="font-medium">${customerForm.paymentMethod}</span></div>
+        ${customerForm.taxId ? `<div class="flex justify-between"><span class="text-brand-muted">統編/載具：</span><span class="font-medium">${customerForm.taxId}</span></div>` : ''}
+      `;
+
+      document.getElementById('receiptItems').innerHTML = cart.map(item => `
+        <div class="flex justify-between items-start gap-2">
+          <div>
+            <span class="font-bold text-brand-ink">${item.name}</span>
+            <span class="text-xs font-bold text-brand-amber ml-1">x${item.qty}</span>
+            ${item.details.length > 0 ? `<p class="text-[11px] text-brand-muted">${item.details.join(' / ')}</p>` : ''}
+          </div>
+          <span class="font-semibold text-brand-ink shrink-0">NT$ ${item.unitPrice * item.qty}</span>
+        </div>
+      `).join('');
+
+      document.getElementById('receiptTotals').innerHTML = `
+        <div class="flex justify-between text-xs text-brand-muted">
+          <span>餐點小計</span>
+          <span>NT$ ${subtotal}</span>
+        </div>
+        ${discount > 0 ? `
+          <div class="flex justify-between text-xs text-brand-green font-semibold">
+            <span>優惠折扣 (${promoCode})</span>
+            <span>- NT$ ${discount}</span>
+          </div>
+        ` : ''}
+        <div class="flex justify-between text-base font-bold text-brand-ink pt-2 border-t border-stone-200">
+          <span>總計金額</span>
+          <span class="text-brand-amber">NT$ ${grandTotal}</span>
+        </div>
+      `;
+
+      // Prepare plain text for LINE copy
+      const itemLines = cart.map(item => {
+        const detailStr = item.details.length > 0 ? ` (${item.details.join(', ')})` : '';
+        return `• ${item.name}${detailStr} x${item.qty} = $${item.unitPrice * item.qty}`;
+      }).join('\n');
+
+      lastGeneratedReceiptText = [
+        `【非晉餐廚蒸烤料理 線上點餐單】`,
+        `單號：${orderId}`,
+        `時間：${timestamp}`,
+        `方式：${orderMode}${modeExtra}`,
+        `訂購人：${customerForm.name} / ${customerForm.phone}`,
+        `取餐時間：${customerForm.pickupTime}`,
+        `付款方式：${customerForm.paymentMethod}`,
+        customerForm.taxId ? `統編/載具：${customerForm.taxId}` : null,
+        `----------------------`,
+        itemLines,
+        `----------------------`,
+        discount > 0 ? `折扣 (${promoCode})：-$${discount}` : null,
+        `總計金額：NT$ ${grandTotal}`
+      ].filter(Boolean).join('\n');
+
+      // Close mobile drawer if open and show receipt
+      closeMobileCartDrawer();
+      const receiptModal = document.getElementById('receiptModal');
+      receiptModal.classList.remove('hidden');
+      receiptModal.classList.add('flex');
+
+      // Reset cart after order submission
+      cart = [];
+      saveCart();
+      renderCartUI();
+    }
+
+    function closeReceiptModal() {
+      const receiptModal = document.getElementById('receiptModal');
+      receiptModal.classList.add('hidden');
+      receiptModal.classList.remove('flex');
+    }
+
+    /**
+     * Copy Order Receipt Text using execCommand (iFrame safe)
+     */
+    function copyReceiptText() {
+      const tempTextArea = document.createElement('textarea');
+      tempTextArea.value = lastGeneratedReceiptText;
+      tempTextArea.style.position = 'fixed';
+      tempTextArea.style.left = '-9999px';
+      document.body.appendChild(tempTextArea);
+      tempTextArea.select();
+      try {
+        document.execCommand('copy');
+        showToast('訂單明細已複製！可直接貼上至官方 LINE 傳送');
+      } catch (err) {
+        showToast('複製失敗，請手動選取文字複製', 'error');
+      }
+      document.body.removeChild(tempTextArea);
+    }
+
+    /**
+     * Menu Manager Functions (Live Edit Prices & Add Custom Items)
+     */
+    function openMenuManager() {
+      renderManagerList();
+      const modal = document.getElementById('menuManagerModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeMenuManager() {
+      const modal = document.getElementById('menuManagerModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      renderMenu();
+    }
+
+    function saveMenuToStorage() {
+      localStorage.setItem('fly_kitchen_menu_v1', JSON.stringify(menuItems));
+    }
+
+    function renderManagerList() {
+      const container = document.getElementById('managerItemList');
+      container.innerHTML = menuItems.map((item, idx) => `
+        <div class="p-3 rounded-xl bg-white border border-stone-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div class="flex-1 min-w-0">
+            <span class="text-[11px] font-semibold text-brand-green bg-brand-greenLight px-2 py-0.5 rounded-md">${item.category}</span>
+            <input type="text" value="${item.name}" onchange="updateMenuItemField(${idx}, 'name', this.value)"
+                   class="block w-full mt-1 font-bold text-sm text-brand-ink border-b border-transparent focus:border-brand-green focus:outline-none" />
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="text-xs text-brand-muted">NT$</span>
+            <input type="number" value="${item.price}" min="0" onchange="updateMenuItemField(${idx}, 'price', Number(this.value))"
+                   class="w-20 px-2.5 py-1.5 text-sm font-bold rounded-lg border border-stone-300 bg-brand-cream text-right" />
+            <button type="button" onclick="deleteMenuItem(${idx})" class="p-1.5 text-stone-400 hover:text-red-600 rounded-lg hover:bg-red-50 transition" title="刪除此品項">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateMenuItemField(index, field, value) {
+      if (!menuItems[index]) return;
+      if (field === 'price' && (isNaN(value) || value < 0)) return;
+      menuItems[index][field] = value;
+      saveMenuToStorage();
+      showToast('已更新品項資訊');
+    }
+
+    function deleteMenuItem(index) {
+      const removed = menuItems.splice(index, 1);
+      saveMenuToStorage();
+      renderManagerList();
+      if (removed[0]) showToast(`已刪除「${removed[0].name}」`, 'info');
+    }
+
+    function addNewMenuItem() {
+      const name = document.getElementById('newItemName').value.trim();
+      const category = document.getElementById('newItemCategory').value;
+      const price = Number(document.getElementById('newItemPrice').value);
+      const desc = document.getElementById('newItemDesc').value.trim();
+      const tag = document.getElementById('newItemTag').value.trim();
+
+      if (!name) {
+        showToast('請輸入餐點名稱', 'error');
+        return;
+      }
+      if (isNaN(price) || price <= 0) {
+        showToast('請輸入有效的價格', 'error');
+        return;
+      }
+
+      const customizableType = category === '蒸烤餐盒系列'
+        ? 'bento'
+        : category === '義大利麵系列'
+          ? 'pasta'
+          : 'simple';
+
+      menuItems.unshift({
+        id: 'custom-' + Date.now(),
+        category,
+        name,
+        price,
+        tag: tag || '自訂品項',
+        kcal: '',
+        desc: desc || '新鮮現做蒸烤料理。',
+        customizableType,
+        accent: 'emerald'
+      });
+
+      saveMenuToStorage();
+      renderManagerList();
+
+      // Clear inputs
+      document.getElementById('newItemName').value = '';
+      document.getElementById('newItemPrice').value = '';
+      document.getElementById('newItemDesc').value = '';
+      document.getElementById('newItemTag').value = '';
+      showToast(`已新增「${name}」至菜單`);
+    }
+
+    function resetMenuToDefault() {
+      menuItems = [...DEFAULT_MENU];
+      saveMenuToStorage();
+      renderManagerList();
+      showToast('已恢復為預設菜單');
+    }
+
+    // Boot application on load
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</body>
+</html>
