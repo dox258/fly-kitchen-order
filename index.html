@@ -133,24 +133,28 @@
           </div>
         </div>
 
-        <!-- 套餐系列加購（僅主餐類顯示） -->
+        <!-- 套餐系列升級（單選） -->
         <div id="comboOptionGroup" class="hidden">
-          <label class="block text-xs font-bold text-stone-700 mb-1.5">升級套餐系列（可複選）</label>
+          <label class="block text-xs font-bold text-stone-700 mb-1.5">升級套餐系列（單選）</label>
           <div class="grid grid-cols-1 gap-1.5 text-xs">
+            <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer">
+              <span><input type="radio" name="combo" value="" data-price="0" checked class="mr-2" /> 不升級套餐（單點主餐）</span>
+              <span class="text-stone-400">+$0</span>
+            </label>
             <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer bg-amber-50/40">
-              <span><input type="checkbox" class="addon-check mr-2" data-name="A套餐(南瓜濃湯+蜂蜜餐包)" data-price="109" /> <strong>A 套餐</strong>：主廚南瓜濃湯 + 義式蜂蜜餐包</span>
+              <span><input type="radio" name="combo" value="A套餐(南瓜濃湯+蜂蜜餐包)" data-price="109" class="mr-2" /> <strong>A 套餐</strong>：主廚南瓜濃湯 + 義式蜂蜜餐包</span>
               <span class="text-[#3d5a45] font-bold">+NT$ 109</span>
             </label>
             <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer bg-amber-50/40">
-              <span><input type="checkbox" class="addon-check mr-2" data-name="B套餐(脆薯+玫瑰綠茶)" data-price="109" /> <strong>B 套餐</strong>：美式香酥脆薯 + 玫瑰綠茶</span>
+              <span><input type="radio" name="combo" value="B套餐(脆薯+玫瑰綠茶)" data-price="109" class="mr-2" /> <strong>B 套餐</strong>：美式香酥脆薯 + 玫瑰綠茶</span>
               <span class="text-[#3d5a45] font-bold">+NT$ 109</span>
             </label>
             <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer bg-amber-50/40">
-              <span><input type="checkbox" class="addon-check mr-2" data-name="C套餐(麥克雞塊+國寶茶)" data-price="109" /> <strong>C 套餐</strong>：麥克雞塊 + 南非國寶茶</span>
+              <span><input type="radio" name="combo" value="C套餐(麥克雞塊+國寶茶)" data-price="109" class="mr-2" /> <strong>C 套餐</strong>：麥克雞塊 + 南非國寶茶</span>
               <span class="text-[#3d5a45] font-bold">+NT$ 109</span>
             </label>
             <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer bg-amber-50/40">
-              <span><input type="checkbox" class="addon-check mr-2" data-name="D套餐(檸香烤雞翅3入+國寶茶)" data-price="199" /> <strong>D 套餐</strong>：檸香烤雞翅3入 + 南非國寶茶</span>
+              <span><input type="radio" name="combo" value="D套餐(檸香烤雞翅3入+國寶茶)" data-price="199" class="mr-2" /> <strong>D 套餐</strong>：檸香烤雞翅3入 + 南非國寶茶</span>
               <span class="text-[#3d5a45] font-bold">+NT$ 199</span>
             </label>
           </div>
@@ -306,7 +310,7 @@
       "雙拼系列": "🍱 此區餐點含：紫米飯 / 蒸烤花椰菜 / 蒸烤蔬食*2 / 溏心蛋*1 / 南瓜（已直接套用會員優惠價）",
       "主食系列": "🍱 此區餐點含：紫米飯 / 蒸烤花椰菜 / 蒸烤蔬食*2 / 溏心蛋*1 / 南瓜（地瓜低脂不含紫米飯，已直接套用會員優惠價）",
       "肉多多系列": "🥩 肉量加倍滿足！此區餐點含：紫米飯 / 蒸烤花椰菜 / 蒸烤蔬食*2 / 溏心蛋*1 / 南瓜",
-      "PASTA系列": "🍝 全系列可選「主廚義大利麵」或「墨西哥辣椒風味 (+$10)」，並可加購 A/B/C/D 套餐",
+      "PASTA系列": "🍝 全系列可選「主廚義大利麵」或「墨西哥辣椒風味 (+$10)」，並可升級 A/B/C/D 套餐",
       "現打果汁": "🥤 100% 新鮮現打原汁，堅持不加糖、不加水"
     };
 
@@ -478,7 +482,10 @@
       document.getElementById('riceOptionGroup').classList.toggle('hidden', !isBox);
       document.getElementById('comboOptionGroup').classList.toggle('hidden', !isMainMeal);
 
-      document.querySelectorAll('.addon-check').forEach(cb => cb.checked = false);
+      // 重設套餐單選為預設（不升級套餐）
+      const defaultCombo = document.querySelector('input[name="combo"][value=""]');
+      if (defaultCombo) defaultCombo.checked = true;
+
       document.getElementById('modalNote').value = '';
       document.getElementById('customModal').classList.remove('hidden');
     }
@@ -500,19 +507,24 @@
       const isBox = ["雙拼系列", "主食系列", "肉多多系列"].includes(selectedItem.category) && selectedItem.id !== 212;
       const rice = isBox ? document.querySelector('input[name="rice"]:checked').value : '';
 
-      const addons = [];
-      let addonCost = 0;
-      document.querySelectorAll('.addon-check:checked').forEach(cb => {
-        addons.push(cb.dataset.name);
-        addonCost += Number(cb.dataset.price);
-      });
+      const isMainMeal = ["雙拼系列", "主食系列", "肉多多系列", "PASTA系列"].includes(selectedItem.category);
+      let comboLabel = '';
+      let comboCost = 0;
+      if (isMainMeal) {
+        const checkedCombo = document.querySelector('input[name="combo"]:checked');
+        if (checkedCombo && checkedCombo.value) {
+          comboLabel = checkedCombo.value;
+          comboCost = Number(checkedCombo.dataset.price);
+        }
+      }
+
       const note = document.getElementById('modalNote').value.trim();
-      const details = [variantLabel, rice, ...addons, note].filter(Boolean).join(' / ');
+      const details = [variantLabel, rice, comboLabel, note].filter(Boolean).join(' / ');
 
       cart.push({
         uid: Date.now(),
         name: selectedItem.name,
-        unitPrice: itemBasePrice + addonCost,
+        unitPrice: itemBasePrice + comboCost,
         details
       });
       closeCustomModal();
