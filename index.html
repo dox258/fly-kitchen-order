@@ -17,7 +17,7 @@
     <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
       <div>
         <h1 class="text-lg md:text-xl font-bold tracking-wide">非晉餐廚蒸烤料理 JUICY KITCHEN</h1>
-        <p class="text-xs text-emerald-100">Fly into Health・官方完整菜單團購系統</p>
+        <p class="text-xs text-emerald-100">Fly into Health・官方完整菜單團購系統（雙拼/主食享會員價）</p>
       </div>
       <div class="flex items-center gap-2">
         <a id="sheetLinkBtn" href="#" target="_blank" class="hidden bg-amber-500 hover:bg-amber-600 text-white text-xs font-medium px-3 py-2 rounded-lg transition">
@@ -33,19 +33,12 @@
     </div>
   </header>
 
-  <!-- 訂購人與價格模式資訊列 -->
+  <!-- 訂購人與用餐資訊列 -->
   <section class="max-w-6xl mx-auto px-4 pt-4">
-    <div class="bg-white rounded-xl p-4 shadow-sm border border-stone-200 grid grid-cols-1 md:grid-cols-4 gap-3">
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-stone-200 grid grid-cols-1 md:grid-cols-3 gap-3">
       <div>
         <label class="block text-xs font-bold text-stone-600 mb-1">訂購人姓名 / 部門 <span class="text-red-500">*</span></label>
         <input type="text" id="customerName" placeholder="例如：Josh / 資訊部" class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#3d5a45]" />
-      </div>
-      <div>
-        <label class="block text-xs font-bold text-stone-600 mb-1">價格方案（雙拼/主食餐盒適用）</label>
-        <select id="priceTier" onchange="renderMenu()" class="w-full border border-stone-300 rounded-lg px-3 py-2 text-sm font-medium text-[#3d5a45] bg-emerald-50/50 focus:outline-none focus:border-[#3d5a45]">
-          <option value="regular">原價計費</option>
-          <option value="member">會員價計費（餐盒享優惠）</option>
-        </select>
       </div>
       <div>
         <label class="block text-xs font-bold text-stone-600 mb-1">取餐方式</label>
@@ -163,29 +156,6 @@
           </div>
         </div>
 
-        <!-- 單點配料加購 -->
-        <div>
-          <label class="block text-xs font-bold text-stone-700 mb-1.5">額外單點加購（官方原價）</label>
-          <div class="grid grid-cols-2 gap-1.5 text-xs">
-            <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer">
-              <span><input type="checkbox" class="addon-check mr-1.5" data-name="溏心蛋" data-price="30" /> 溏心蛋</span>
-              <span class="text-stone-500">+$30</span>
-            </label>
-            <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer">
-              <span><input type="checkbox" class="addon-check mr-1.5" data-name="蒸烤花椰菜" data-price="45" /> 蒸烤花椰菜</span>
-              <span class="text-stone-500">+$45</span>
-            </label>
-            <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer">
-              <span><input type="checkbox" class="addon-check mr-1.5" data-name="香Q紫米飯" data-price="25" /> 香Q紫米飯</span>
-              <span class="text-stone-500">+$25</span>
-            </label>
-            <label class="border rounded-lg p-2 flex justify-between items-center cursor-pointer">
-              <span><input type="checkbox" class="addon-check mr-1.5" data-name="義式蜂蜜餐包(2入)" data-price="59" /> 蜂蜜餐包(2入)</span>
-              <span class="text-stone-500">+$59</span>
-            </label>
-          </div>
-        </div>
-
         <div>
           <label class="block text-xs font-bold text-stone-700 mb-1">單品備註</label>
           <input type="text" id="modalNote" placeholder="例如：飲料去冰、不要胡椒" class="w-full border rounded-lg px-3 py-2 text-xs" />
@@ -262,29 +232,29 @@
     const HARDCODED_SHEET_URL = "";
 
     const OFFICIAL_MENU = [
-      // 一、雙拼系列（含紫米飯/蒸烤花椰菜/蒸烤蔬食*2/溏心蛋*1/南瓜）
-      { id: 101, name: "海陸豪華寶盒", category: "雙拼系列", price: 509, memberPrice: 499, desc: "脂肪24.4g / 碳水111.6g / 蛋白質104.5g / 843大卡" },
-      { id: 102, name: "非晉經典雙拼（雞腿+松阪豬）", category: "雙拼系列", price: 409, memberPrice: 399, desc: "脂肪25.8g / 碳水112.4g / 蛋白質59.5g / 921大卡" },
-      { id: 103, name: "檸香鯖魚去骨雞腿", category: "雙拼系列", price: 399, memberPrice: 389, desc: "脂肪30.5g / 碳水71g / 蛋白質51g / 1100大卡" },
-      { id: 104, name: "非晉人氣雙拼（雞腿+板腱牛）", category: "雙拼系列", price: 369, memberPrice: 359, desc: "脂肪30.5g / 碳水111.2g / 蛋白質61.8g / 905大卡" },
-      { id: 105, name: "雙拼蒸烤雞腿烤蝦", category: "雙拼系列", price: 319, memberPrice: 309, desc: "脂肪23.5g / 碳水111g / 蛋白質85.8g / 801大卡" },
-      { id: 106, name: "低脂雙拼（雞胸+杏鮑菇）", category: "雙拼系列", price: 269, memberPrice: 259, desc: "脂肪11.3g / 碳水121g / 蛋白質50.6g / 628大卡" },
+      // 一、雙拼系列（已全面套用會員價）
+      { id: 101, name: "海陸豪華寶盒", category: "雙拼系列", price: 499, regularPrice: 509, desc: "脂肪24.4g / 碳水111.6g / 蛋白質104.5g / 843大卡" },
+      { id: 102, name: "非晉經典雙拼（雞腿+松阪豬）", category: "雙拼系列", price: 399, regularPrice: 409, desc: "脂肪25.8g / 碳水112.4g / 蛋白質59.5g / 921大卡" },
+      { id: 103, name: "檸香鯖魚去骨雞腿", category: "雙拼系列", price: 389, regularPrice: 399, desc: "脂肪30.5g / 碳水71g / 蛋白質51g / 1100大卡" },
+      { id: 104, name: "非晉人氣雙拼（雞腿+板腱牛）", category: "雙拼系列", price: 359, regularPrice: 369, desc: "脂肪30.5g / 碳水111.2g / 蛋白質61.8g / 905大卡" },
+      { id: 105, name: "雙拼蒸烤雞腿烤蝦", category: "雙拼系列", price: 309, regularPrice: 319, desc: "脂肪23.5g / 碳水111g / 蛋白質85.8g / 801大卡" },
+      { id: 106, name: "低脂雙拼（雞胸+杏鮑菇）", category: "雙拼系列", price: 259, regularPrice: 269, desc: "脂肪11.3g / 碳水121g / 蛋白質50.6g / 628大卡" },
 
-      // 二、主食系列（含紫米飯/蒸烤花椰菜/蒸烤蔬食*2/溏心蛋*1/南瓜）
-      { id: 201, name: "香烤菲力牛", category: "主食系列", price: 309, memberPrice: 299, desc: "脂肪20.9g / 碳水111g / 蛋白質46g / 659大卡" },
-      { id: 202, name: "芥末椒鹽大鮭魚", category: "主食系列", price: 309, memberPrice: 299, desc: "脂肪16.2g / 碳水111g / 蛋白質49.7g / 728大卡" },
-      { id: 203, name: "檸香金目鱸魚", category: "主食系列", price: 309, memberPrice: 299, desc: "脂肪11.5g / 碳水0.4g / 蛋白質109.6g / 566大卡" },
-      { id: 204, name: "芥末椒鹽烤松阪豬", category: "主食系列", price: 299, memberPrice: 289, desc: "脂肪14.5g / 碳水112.4g / 蛋白質42.9g / 657大卡" },
-      { id: 205, name: "芥末椒鹽烤蝦", category: "主食系列", price: 279, memberPrice: 269, desc: "脂肪11.1g / 碳水111g / 蛋白質38.8g / 540大卡" },
-      { id: 206, name: "板腱牛佐法式油封蒜頭", category: "主食系列", price: 279, memberPrice: 269, desc: "脂肪19.2g / 碳水111.2g / 蛋白質45.2g / 641大卡" },
-      { id: 207, name: "檸香鯖魚", category: "主食系列", price: 279, memberPrice: 269, desc: "脂肪46.1g / 碳水111g / 蛋白質45.4g / 1120大卡" },
-      { id: 208, name: "芥末椒鹽鮭魚（半）", category: "主食系列", price: 259, memberPrice: 249, desc: "脂肪19.2g / 碳水111g / 蛋白質37.5g / 601大卡" },
-      { id: 209, name: "西班牙煙燻去骨雞腿", category: "主食系列", price: 239, memberPrice: 230, desc: "脂肪21.5g / 碳水111g / 蛋白質42g / 739大卡" },
-      { id: 210, name: "舒肥原味雞胸", category: "主食系列", price: 209, memberPrice: 199, desc: "脂肪11.1g / 碳水111g / 蛋白質47.4g / 579大卡" },
-      { id: 211, name: "義式杏鮑菇（蛋奶素）", category: "主食系列", price: 179, memberPrice: 169, desc: "脂肪10.4g / 碳水121g / 蛋白質28.6g / 524大卡" },
-      { id: 212, name: "地瓜低脂（不含紫米飯）", category: "主食系列", price: 125, memberPrice: 120, desc: "脂肪0.5g / 碳水37.6g / 蛋白質1.9g / 166大卡" },
+      // 二、主食系列（已全面套用會員價）
+      { id: 201, name: "香烤菲力牛", category: "主食系列", price: 299, regularPrice: 309, desc: "脂肪20.9g / 碳水111g / 蛋白質46g / 659大卡" },
+      { id: 202, name: "芥末椒鹽大鮭魚", category: "主食系列", price: 299, regularPrice: 309, desc: "脂肪16.2g / 碳水111g / 蛋白質49.7g / 728大卡" },
+      { id: 203, name: "檸香金目鱸魚", category: "主食系列", price: 299, regularPrice: 309, desc: "脂肪11.5g / 碳水0.4g / 蛋白質109.6g / 566大卡" },
+      { id: 204, name: "芥末椒鹽烤松阪豬", category: "主食系列", price: 289, regularPrice: 299, desc: "脂肪14.5g / 碳水112.4g / 蛋白質42.9g / 657大卡" },
+      { id: 205, name: "芥末椒鹽烤蝦", category: "主食系列", price: 269, regularPrice: 279, desc: "脂肪11.1g / 碳水111g / 蛋白質38.8g / 540大卡" },
+      { id: 206, name: "板腱牛佐法式油封蒜頭", category: "主食系列", price: 269, regularPrice: 279, desc: "脂肪19.2g / 碳水111.2g / 蛋白質45.2g / 641大卡" },
+      { id: 207, name: "檸香鯖魚", category: "主食系列", price: 269, regularPrice: 279, desc: "脂肪46.1g / 碳水111g / 蛋白質45.4g / 1120大卡" },
+      { id: 208, name: "芥末椒鹽鮭魚（半）", category: "主食系列", price: 249, regularPrice: 259, desc: "脂肪19.2g / 碳水111g / 蛋白質37.5g / 601大卡" },
+      { id: 209, name: "西班牙煙燻去骨雞腿", category: "主食系列", price: 230, regularPrice: 239, desc: "脂肪21.5g / 碳水111g / 蛋白質42g / 739大卡" },
+      { id: 210, name: "舒肥原味雞胸", category: "主食系列", price: 199, regularPrice: 209, desc: "脂肪11.1g / 碳水111g / 蛋白質47.4g / 579大卡" },
+      { id: 211, name: "義式杏鮑菇（蛋奶素）", category: "主食系列", price: 169, regularPrice: 179, desc: "脂肪10.4g / 碳水121g / 蛋白質28.6g / 524大卡" },
+      { id: 212, name: "地瓜低脂（不含紫米飯）", category: "主食系列", price: 120, regularPrice: 125, desc: "脂肪0.5g / 碳水37.6g / 蛋白質1.9g / 166大卡" },
 
-      // 三、肉多多系列（含紫米飯/蒸烤花椰菜/蒸烤蔬食*2/溏心蛋*1/南瓜）
+      // 三、肉多多系列
       { id: 301, name: "豬多多芥末椒鹽松阪豬餐盒", category: "肉多多系列", price: 449, desc: "脂肪48.5g / 碳水71.4g / 蛋白質49g / 930大卡" },
       { id: 302, name: "蝦多多芥末椒鹽大蝦餐盒", category: "肉多多系列", price: 419, desc: "脂肪9.9g / 碳水72.6g / 蛋白質61g / 628大卡" },
       { id: 303, name: "牛多多板腱牛佐法式油封蒜頭", category: "肉多多系列", price: 419, desc: "脂肪30.5g / 碳水71.6g / 蛋白質67g / 834大卡" },
@@ -333,14 +303,14 @@
     ];
 
     const CATEGORY_BANNERS = {
-      "雙拼系列": "🍱 此區餐點含：紫米飯 / 蒸烤花椰菜 / 蒸烤蔬食*2 / 溏心蛋*1 / 南瓜（上方可切換原價或會員價）",
-      "主食系列": "🍱 此區餐點含：紫米飯 / 蒸烤花椰菜 / 蒸烤蔬食*2 / 溏心蛋*1 / 南瓜（地瓜低脂不含紫米飯）",
+      "雙拼系列": "🍱 此區餐點含：紫米飯 / 蒸烤花椰菜 / 蒸烤蔬食*2 / 溏心蛋*1 / 南瓜（已直接套用會員優惠價）",
+      "主食系列": "🍱 此區餐點含：紫米飯 / 蒸烤花椰菜 / 蒸烤蔬食*2 / 溏心蛋*1 / 南瓜（地瓜低脂不含紫米飯，已直接套用會員優惠價）",
       "肉多多系列": "🥩 肉量加倍滿足！此區餐點含：紫米飯 / 蒸烤花椰菜 / 蒸烤蔬食*2 / 溏心蛋*1 / 南瓜",
       "PASTA系列": "🍝 全系列可選「主廚義大利麵」或「墨西哥辣椒風味 (+$10)」，並可加購 A/B/C/D 套餐",
       "現打果汁": "🥤 100% 新鮮現打原汁，堅持不加糖、不加水"
     };
 
-    let menuItems = JSON.parse(localStorage.getItem('fly_kitchen_official_menu_v2')) || OFFICIAL_MENU;
+    let menuItems = JSON.parse(localStorage.getItem('fly_kitchen_official_menu_v3')) || OFFICIAL_MENU;
     let currentCategory = "全部";
     let isEditMode = false;
     let cart = [];
@@ -385,15 +355,8 @@
       renderMenu();
     }
 
-    function getDisplayPrice(item) {
-      const tier = document.getElementById('priceTier').value;
-      if (tier === 'member' && item.memberPrice) return item.memberPrice;
-      return item.price;
-    }
-
     function renderMenu() {
       const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
-      const tier = document.getElementById('priceTier').value;
       const filtered = menuItems.filter(item => {
         const matchCat = currentCategory === "全部" || item.category === currentCategory;
         const matchKey = !keyword || item.name.toLowerCase().includes(keyword) || item.desc.toLowerCase().includes(keyword);
@@ -401,8 +364,7 @@
       });
 
       document.getElementById('menuGrid').innerHTML = filtered.map(item => {
-        const activePrice = getDisplayPrice(item);
-        let priceLabel = `NT$ ${activePrice}`;
+        let priceLabel = `NT$ ${item.price}`;
         if (item.spicyPrice) priceLabel = `NT$ ${item.price} <span class="text-xs font-normal text-stone-500">/ 墨辣 $${item.spicyPrice}</span>`;
         if (item.largePrice) priceLabel = `NT$ ${item.price} <span class="text-xs font-normal text-stone-500">(3入) / $${item.largePrice} (6入)</span>`;
 
@@ -411,7 +373,7 @@
             <div>
               <div class="flex justify-between items-start gap-2">
                 <span class="text-[11px] px-2 py-0.5 rounded bg-emerald-50 text-[#3d5a45] font-medium">${item.category}</span>
-                ${tier === 'member' && item.memberPrice ? `<span class="text-[11px] px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold">會員優惠價 (原價$${item.price})</span>` : ''}
+                ${item.regularPrice ? `<span class="text-[11px] px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold">會員價 (原價$${item.regularPrice})</span>` : ''}
                 ${isEditMode ? `<button onclick="deleteMenuItem(${item.id})" class="text-xs text-red-500 hover:underline">刪除</button>` : ''}
               </div>
               ${isEditMode ? `
@@ -442,7 +404,7 @@
 
     function updateMenuItem(id, field, val) {
       menuItems = menuItems.map(i => i.id === id ? { ...i, [field]: val } : i);
-      localStorage.setItem('fly_kitchen_official_menu_v2', JSON.stringify(menuItems));
+      localStorage.setItem('fly_kitchen_official_menu_v3', JSON.stringify(menuItems));
     }
 
     function addNewMenuItem() {
@@ -451,7 +413,7 @@
       const price = Number(document.getElementById('newItemPrice').value);
       if (!name || !price) return alert('請輸入餐點名稱與價格');
       menuItems.unshift({ id: Date.now(), name, category, price, desc: "自訂新增品項" });
-      localStorage.setItem('fly_kitchen_official_menu_v2', JSON.stringify(menuItems));
+      localStorage.setItem('fly_kitchen_official_menu_v3', JSON.stringify(menuItems));
       document.getElementById('newItemName').value = '';
       document.getElementById('newItemPrice').value = '';
       renderMenu();
@@ -460,22 +422,21 @@
     function deleteMenuItem(id) {
       if (!confirm('確定刪除此品項？')) return;
       menuItems = menuItems.filter(i => i.id !== id);
-      localStorage.setItem('fly_kitchen_official_menu_v2', JSON.stringify(menuItems));
+      localStorage.setItem('fly_kitchen_official_menu_v3', JSON.stringify(menuItems));
       renderMenu();
     }
 
     function resetDefaultMenu() {
       if (!confirm('確定恢復官方預設菜單？')) return;
       menuItems = [...OFFICIAL_MENU];
-      localStorage.setItem('fly_kitchen_official_menu_v2', JSON.stringify(menuItems));
+      localStorage.setItem('fly_kitchen_official_menu_v3', JSON.stringify(menuItems));
       renderMenu();
     }
 
     function openCustomModal(id) {
       selectedItem = menuItems.find(i => i.id === id);
-      const basePrice = getDisplayPrice(selectedItem);
       document.getElementById('modalItemName').textContent = selectedItem.name;
-      document.getElementById('modalItemPrice').textContent = `單價 NT$ ${basePrice}`;
+      document.getElementById('modalItemPrice').textContent = `單價 NT$ ${selectedItem.price}`;
       document.getElementById('modalItemDesc').textContent = selectedItem.desc;
 
       // 雙規格處理（PASTA 口味 或 烤雞翅 3入/6入）
@@ -527,7 +488,7 @@
     }
 
     function confirmAddToCart() {
-      let itemBasePrice = getDisplayPrice(selectedItem);
+      let itemBasePrice = selectedItem.price;
       let variantLabel = '';
 
       const checkedVariant = document.querySelector('input[name="variant"]:checked');
@@ -538,7 +499,6 @@
 
       const isBox = ["雙拼系列", "主食系列", "肉多多系列"].includes(selectedItem.category) && selectedItem.id !== 212;
       const rice = isBox ? document.querySelector('input[name="rice"]:checked').value : '';
-      const tierLabel = (document.getElementById('priceTier').value === 'member' && selectedItem.memberPrice) ? '會員價' : '';
 
       const addons = [];
       let addonCost = 0;
@@ -547,7 +507,7 @@
         addonCost += Number(cb.dataset.price);
       });
       const note = document.getElementById('modalNote').value.trim();
-      const details = [variantLabel, tierLabel, rice, ...addons, note].filter(Boolean).join(' / ');
+      const details = [variantLabel, rice, ...addons, note].filter(Boolean).join(' / ');
 
       cart.push({
         uid: Date.now(),
